@@ -106,10 +106,11 @@ void TestIphcVector::GetUncompressedStream(Message &aMessage)
  * This function initializes Thread Interface.
  *
  */
-static void Init()
+static void Init(void)
 {
     otMeshLocalPrefix meshLocalPrefix = {{0xfd, 0x00, 0xca, 0xfe, 0xfa, 0xce, 0x12, 0x34}};
-    sInstance->Get<Mle::MleRouter>().SetMeshLocalPrefix(meshLocalPrefix);
+
+    sInstance->Get<Mle::MleRouter>().SetMeshLocalPrefix(static_cast<Mle::MeshLocalPrefix &>(meshLocalPrefix));
 
     // Emulate global prefixes with contextes.
     uint8_t mockNetworkData[] = {
@@ -132,7 +133,7 @@ static void Init()
 
     SuccessOrQuit(message->Append(mockNetworkData, sizeof(mockNetworkData)), "6lo: Message::Append failed");
 
-    sInstance->Get<NetworkData::Leader>().SetNetworkData(0, 0, true, *message, 0);
+    IgnoreError(sInstance->Get<NetworkData::Leader>().SetNetworkData(0, 0, true, *message, 0));
 }
 
 /**
@@ -218,7 +219,7 @@ static void Test(TestIphcVector &aVector, bool aCompress, bool aDecompress)
                    iphcLength - static_cast<uint16_t>(decompressedBytes));
 
             DumpBuffer("Resulted IPv6 uncompressed packet", result,
-                       message->GetLength() + iphcLength - decompressedBytes);
+                       message->GetLength() + iphcLength - static_cast<uint16_t>(decompressedBytes));
 
             VerifyOrQuit(decompressedBytes == aVector.mIphcHeader.mLength, "6lo: Lowpan::Decompress failed");
             VerifyOrQuit(message->GetOffset() == aVector.mPayloadOffset, "6lo: Lowpan::Decompress failed");

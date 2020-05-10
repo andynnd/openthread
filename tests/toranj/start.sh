@@ -58,15 +58,13 @@ run() {
             return
         fi
 
-        # On Travis, we allow a failed test to be retried up to 3 attempts.
-        if [ "$BUILD_TARGET" = "toranj-test-framework" ]; then
-            if [ "$counter" -lt 2 ]; then
-                counter=$((counter+1))
-                echo Attempt $counter running "$1" failed. Trying again.
-                cleanup
-                sleep 10
-                continue
-            fi
+        # We allow a failed test to be retried up to 3 attempts.
+        if [ "$counter" -lt 2 ]; then
+            counter=$((counter+1))
+            echo Attempt $counter running "$1" failed. Trying again.
+            cleanup
+            sleep 10
+            continue
         fi
 
         echo " *** TEST FAILED"
@@ -83,21 +81,21 @@ else
     coverage_option=""
 fi
 
-case $TORANJ_POSIX_APP_RCP_MODEL in
+case $TORANJ_POSIX_RCP_MODEL in
     1|yes)
-        use_posix_app_with_rcp=yes
+        use_posix_with_rcp=yes
         ;;
     *)
-        use_posix_app_with_rcp=no
+        use_posix_with_rcp=no
         ;;
 esac
 
-if [ "$use_posix_app_with_rcp" = "no" ]; then
+if [ "$use_posix_with_rcp" = "no" ]; then
     ./build.sh ${coverage_option} ncp || die
 
 else
     ./build.sh ${coverage_option} rcp || die
-    ./build.sh ${coverage_option} posix-app || die
+    ./build.sh ${coverage_option} posix || die
 fi
 
 cleanup
@@ -140,6 +138,8 @@ run test-035-child-timeout-large-data-poll.py
 run test-036-wpantund-host-route-management.py
 run test-037-wpantund-auto-add-route-for-on-mesh-prefix.py
 run test-038-clear-address-cache-for-sed.py
+run test-039-address-cache-table-snoop.py
+run test-040-network-data-stable-full.py
 run test-100-mcu-power-state.py
 run test-600-channel-manager-properties.py
 run test-601-channel-manager-channel-change.py

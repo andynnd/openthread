@@ -38,25 +38,24 @@
 
 #include <openthread/thread_ftd.h>
 
+#include "common/locator.hpp"
 #include "common/message.hpp"
 #include "common/random.hpp"
 #include "common/timer.hpp"
 #include "mac/mac_types.hpp"
 #include "net/ip6.hpp"
-#include "thread/device_mode.hpp"
 #include "thread/indirect_sender.hpp"
 #include "thread/link_quality.hpp"
 #include "thread/mle_tlvs.hpp"
+#include "thread/mle_types.hpp"
 
 namespace ot {
-
-class Instance;
 
 /**
  * This class represents a Thread neighbor.
  *
  */
-class Neighbor
+class Neighbor : public InstanceLocatorInit
 {
 public:
     /**
@@ -353,6 +352,39 @@ public:
     void SetRloc16(uint16_t aRloc16) { mRloc16 = aRloc16; }
 
     /**
+     * This method indicates whether or not it is a valid Thread 1.1 neighbor.
+     *
+     * @returns TRUE if it is a valid Thread 1.1 neighbor, FALSE otherwise.
+     *
+     */
+    bool IsThreadVersion1p1(void) const { return mState != kStateInvalid && mVersion == OT_THREAD_VERSION_1_1; }
+
+    /**
+     * This method indicates whether Enhanced Keep-Alive is supported or not.
+     *
+     * @returns TRUE if Enhanced Keep-Alive is supported, FALSE otherwise.
+     *
+     */
+    bool IsEnhancedKeepAliveSupported(void) const
+    {
+        return mState != kStateInvalid && mVersion >= OT_THREAD_VERSION_1_2;
+    }
+
+    /**
+     * This method gets the device MLE version.
+     *
+     */
+    uint8_t GetVersion(void) const { return mVersion; }
+
+    /**
+     * This method sets the device MLE version.
+     *
+     * @param[in]  aVersion  The device MLE version.
+     *
+     */
+    void SetVersion(uint8_t aVersion) { mVersion = aVersion; }
+
+    /**
      * This method gets the number of consecutive link failures.
      *
      * @returns The number of consecutive link failures.
@@ -420,6 +452,15 @@ public:
     void SetTimeSyncEnabled(bool aEnabled) { mTimeSyncEnabled = aEnabled; }
 #endif
 
+protected:
+    /**
+     * This method initializes the `Neighbor` object.
+     *
+     * @param[in] aInstance  A reference to OpenThread instance.
+     *
+     */
+    void Init(Instance &aInstance);
+
 private:
     Mac::ExtAddress mMacAddr;   ///< The IEEE 802.15.4 Extended Address
     TimeMilli       mLastHeard; ///< Time when last heard.
@@ -432,7 +473,7 @@ private:
         } mValid;
         struct
         {
-            uint8_t mChallenge[Mle::ChallengeTlv::kMaxSize]; ///< The challenge value
+            uint8_t mChallenge[Mle::kMaxChallengeSize]; ///< The challenge value
         } mPending;
     } mValidPending;
 
@@ -446,6 +487,7 @@ private:
 #else
     uint8_t mLinkFailures; ///< Consecutive link failure count
 #endif
+    uint8_t         mVersion;  ///< The MLE version
     LinkQualityInfo mLinkInfo; ///< Link quality info (contains average RSS, link margin and link quality)
 };
 
@@ -512,6 +554,14 @@ public:
     };
 
     /**
+     * This method initializes the `Child` object.
+     *
+     * @param[in] aInstance  A reference to OpenThread instance.
+     *
+     */
+    void Init(Instance &aInstance) { Neighbor::Init(aInstance); }
+
+    /**
      * This method clears the child entry.
      *
      */
@@ -526,19 +576,25 @@ public:
     /**
      * This method gets the mesh-local IPv6 address.
      *
-     * @param[in]    aInstance           A reference to the OpenThread instance.
      * @param[out]   aAddress            A reference to an IPv6 address to provide address (if any).
      *
      * @retval       OT_ERROR_NONE       Successfully found the mesh-local address and updated @p aAddress.
      * @retval       OT_ERROR_NOT_FOUND  No mesh-local IPv6 address in the IPv6 address list.
      *
      */
-    otError GetMeshLocalIp6Address(Instance &aInstance, Ip6::Address &aAddress) const;
+    otError GetMeshLocalIp6Address(Ip6::Address &aAddress) const;
+
+    /**
+     * This method returns a pointer to the Mesh Local Interface Identifier.
+     *
+     * @returns a pointer to the Mesh Local Interface Identifier.
+     *
+     */
+    const uint8_t *GetMeshLocalIid(void) const { return mMeshLocalIid; }
 
     /**
      * This method gets the next IPv6 address in the list.
      *
-     * @param[in]    aInstance           A reference to the OpenThread instance.
      * @param[inout] aIterator           A reference to an IPv6 address iterator.
      * @param[out]   aAddress            A reference to an IPv6 address to provide the next address (if any).
      *
@@ -546,12 +602,11 @@ public:
      * @retval       OT_ERROR_NOT_FOUND  No subsequent IPv6 address exists in the IPv6 address list.
      *
      */
-    otError GetNextIp6Address(Instance &aInstance, Ip6AddressIterator &aIterator, Ip6::Address &aAddress) const;
+    otError GetNextIp6Address(Ip6AddressIterator &aIterator, Ip6::Address &aAddress) const;
 
     /**
      * This method adds an IPv6 address to the list.
      *
-     * @param[in]  aInstance          A reference to the OpenThread instance.
      * @param[in]  aAddress           A reference to IPv6 address to be added.
      *
      * @retval OT_ERROR_NONE          Successfully added the new address.
@@ -560,12 +615,11 @@ public:
      * @retval OT_ERROR_INVALID_ARGS  Address is invalid (it is the Unspecified Address).
      *
      */
-    otError AddIp6Address(Instance &aInstance, const Ip6::Address &aAddress);
+    otError AddIp6Address(const Ip6::Address &aAddress);
 
     /**
      * This method removes an IPv6 address from the list.
      *
-     * @param[in]  aInstance              A reference to the OpenThread instance.
      * @param[in]  aAddress               A reference to IPv6 address to be removed.
      *
      * @retval OT_ERROR_NONE              Successfully removed the address.
@@ -573,19 +627,18 @@ public:
      * @retval OT_ERROR_INVALID_ARGS      Address is invalid (it is the Unspecified Address).
      *
      */
-    otError RemoveIp6Address(Instance &aInstance, const Ip6::Address &aAddress);
+    otError RemoveIp6Address(const Ip6::Address &aAddress);
 
     /**
      * This method indicates whether an IPv6 address is in the list of IPv6 addresses of the child.
      *
-     * @param[in]  aInstance  A reference to the OpenThread instance.
      * @param[in]  aAddress   A reference to IPv6 address.
      *
      * @retval TRUE           The address exists on the list.
      * @retval FALSE          Address was not found in the list.
      *
      */
-    bool HasIp6Address(Instance &aInstance, const Ip6::Address &aAddress) const;
+    bool HasIp6Address(const Ip6::Address &aAddress) const;
 
     /**
      * This method gets the child timeout.
@@ -708,8 +761,8 @@ private:
 
     union
     {
-        uint8_t mRequestTlvs[kMaxRequestTlvs];                 ///< Requested MLE TLVs
-        uint8_t mAttachChallenge[Mle::ChallengeTlv::kMaxSize]; ///< The challenge value
+        uint8_t mRequestTlvs[kMaxRequestTlvs];            ///< Requested MLE TLVs
+        uint8_t mAttachChallenge[Mle::kMaxChallengeSize]; ///< The challenge value
     };
 
 #if OPENTHREAD_CONFIG_CHILD_SUPERVISION_ENABLE
@@ -726,6 +779,14 @@ private:
 class Router : public Neighbor
 {
 public:
+    /**
+     * This method initializes the `Router` object.
+     *
+     * @param[in] aInstance  A reference to OpenThread instance.
+     *
+     */
+    void Init(Instance &aInstance) { Neighbor::Init(aInstance); }
+
     /**
      * This method clears the router entry.
      *

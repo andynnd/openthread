@@ -93,8 +93,9 @@ struct MessageInfo
     uint16_t    mOffset;      ///< A byte offset within the message.
     RssAverager mRssAverager; ///< The averager maintaining the received signal strength (RSS) average.
 
-    uint8_t mChildMask[kChildMaskBytes]; ///< A bit-vector to indicate which sleepy children need to receive this.
-    uint8_t mTimeout;                    ///< Seconds remaining before dropping the message.
+    uint8_t  mChildMask[kChildMaskBytes]; ///< A bit-vector to indicate which sleepy children need to receive this.
+    uint16_t mMeshDest;                   ///< Used for unicast non-link-local messages.
+    uint8_t  mTimeout;                    ///< Seconds remaining before dropping the message.
     union
     {
         uint16_t mPanId;   ///< Used for MLE Discover Request and Response messages.
@@ -105,7 +106,7 @@ struct MessageInfo
     uint8_t mSubType : 4;      ///< Identifies the message sub type.
     bool    mDirectTx : 1;     ///< Used to indicate whether a direct transmission is required.
     bool    mLinkSecurity : 1; ///< Indicates whether or not link security is enabled.
-    uint8_t mPriority : 2;     ///< Identifies the message priority level (lower value is higher priority).
+    uint8_t mPriority : 2;     ///< Identifies the message priority level (higher value is higher priority).
     bool    mInPriorityQ : 1;  ///< Indicates whether the message is queued in normal or priority queue.
     bool    mTxSuccess : 1;    ///< Indicates whether the direct tx of the message was successful.
     bool    mDoNotEvict : 1;   ///< Indicates whether or not this message may be evicted.
@@ -206,6 +207,7 @@ public:
         kTypeIp6         = 0, ///< A full uncompressed IPv6 packet
         kType6lowpan     = 1, ///< A 6lowpan frame
         kTypeSupervision = 2, ///< A child supervision frame.
+        kTypeOther       = 3, ///< Other (data) message.
     };
 
     enum
@@ -516,6 +518,26 @@ public:
     bool IsChildPending(void) const;
 
     /**
+     * This method returns the RLOC16 of the mesh destination.
+     *
+     * @note Only use this for non-link-local unicast messages.
+     *
+     * @returns The IEEE 802.15.4 Destination PAN ID.
+     *
+     */
+    uint16_t GetMeshDest(void) const { return mBuffer.mHead.mInfo.mMeshDest; }
+
+    /**
+     * This method sets the RLOC16 of the mesh destination.
+     *
+     * @note Only use this when sending non-link-local unicast messages.
+     *
+     * @param[in]  aMeshDest  The IEEE 802.15.4 Destination PAN ID.
+     *
+     */
+    void SetMeshDest(uint16_t aMeshDest) { mBuffer.mHead.mInfo.mMeshDest = aMeshDest; }
+
+    /**
      * This method returns the IEEE 802.15.4 Destination PAN ID.
      *
      * @note Only use this when sending MLE Discover Request or Response messages.
@@ -658,7 +680,7 @@ public:
      * @param[in] aRss A new RSS value (in dBm) to be added to average.
      *
      */
-    void AddRss(int8_t aRss) { mBuffer.mHead.mInfo.mRssAverager.Add(aRss); }
+    void AddRss(int8_t aRss) { IgnoreError(mBuffer.mHead.mInfo.mRssAverager.Add(aRss)); }
 
     /**
      * This method returns the average RSS (Received Signal Strength) associated with the message.
@@ -720,6 +742,17 @@ public:
     MessageQueue *GetMessageQueue(void) const
     {
         return (!mBuffer.mHead.mInfo.mInPriorityQ) ? mBuffer.mHead.mInfo.mQueue.mMessage : NULL;
+    }
+
+    /**
+     * This method returns a pointer to the priority message queue (if any) where this message is queued.
+     *
+     * @returns A pointer to the priority queue or NULL if not in any priority queue.
+     *
+     */
+    PriorityQueue *GetPriorityQueue(void) const
+    {
+        return (mBuffer.mHead.mInfo.mInPriorityQ) ? mBuffer.mHead.mInfo.mQueue.mPriority : NULL;
     }
 
 #if OPENTHREAD_CONFIG_TIME_SYNC_ENABLE
@@ -808,17 +841,6 @@ private:
      *
      */
     void SetMessageQueue(MessageQueue *aMessageQueue);
-
-    /**
-     * This method returns a pointer to the priority message queue (if any) where this message is queued.
-     *
-     * @returns A pointer to the priority queue or NULL if not in any priority queue.
-     *
-     */
-    PriorityQueue *GetPriorityQueue(void) const
-    {
-        return (mBuffer.mHead.mInfo.mInPriorityQ) ? mBuffer.mHead.mInfo.mQueue.mPriority : NULL;
-    }
 
     /**
      * This method sets the message queue information for the message.

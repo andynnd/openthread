@@ -28,10 +28,12 @@
 
 # OpenThread Features (Makefile default configuration).
 
+BACKBONE_ROUTER     ?= 0
 BIG_ENDIAN          ?= 0
 BORDER_AGENT        ?= 0
 BORDER_ROUTER       ?= 0
 COAP                ?= 0
+COAP_OBSERVE        ?= 0
 COAPS               ?= 0
 COMMISSIONER        ?= 0
 COVERAGE            ?= 0
@@ -43,7 +45,9 @@ DHCP6_CLIENT        ?= 0
 DHCP6_SERVER        ?= 0
 DIAGNOSTIC          ?= 0
 DISABLE_DOC         ?= 0
+DISABLE_TOOLS       ?= 0
 DNS_CLIENT          ?= 0
+DUA                 ?= 0
 DYNAMIC_LOG_LEVEL   ?= 0
 ECDSA               ?= 0
 EXTERNAL_HEAP       ?= 0
@@ -58,6 +62,8 @@ LINK_RAW            ?= 0
 MAC_FILTER          ?= 0
 MTD_NETDIAG         ?= 0
 MQTT                ?= 0
+MULTIPLE_INSTANCE   ?= 0
+OTNS                ?= 0
 PLATFORM_UDP        ?= 0
 REFERENCE_DEVICE    ?= 0
 SERVICE             ?= 0
@@ -65,9 +71,14 @@ SETTINGS_RAM        ?= 0
 # SLAAC is enabled by default
 SLAAC               ?= 1
 SNTP_CLIENT         ?= 0
+THREAD_VERSION      ?= 1.1
 TIME_SYNC           ?= 0
 UDP_FORWARD         ?= 0
 
+
+ifeq ($(BACKBONE_ROUTER),1)
+COMMONCFLAGS                   += -DOPENTHREAD_CONFIG_BACKBONE_ROUTER_ENABLE=1
+endif
 
 ifeq ($(BIG_ENDIAN),1)
 COMMONCFLAGS                   += -DBYTE_ORDER_BIG_ENDIAN=1
@@ -87,6 +98,10 @@ endif
 
 ifeq ($(COAPS),1)
 COMMONCFLAGS                   += -DOPENTHREAD_CONFIG_COAP_SECURE_API_ENABLE=1
+endif
+
+ifeq ($(COAP_OBSERVE),1)
+COMMONCFLAGS                   += -DOPENTHREAD_CONFIG_COAP_OBSERVE_API_ENABLE=1
 endif
 
 ifeq ($(COMMISSIONER),1)
@@ -129,8 +144,16 @@ ifeq ($(DISABLE_DOC),1)
 configure_OPTIONS              += --disable-docs
 endif
 
+ifeq ($(DISABLE_TOOLS),1)
+configure_OPTIONS              += --disable-tools
+endif
+
 ifeq ($(DNS_CLIENT),1)
 COMMONCFLAGS                   += -DOPENTHREAD_CONFIG_DNS_CLIENT_ENABLE=1
+endif
+
+ifeq ($(DUA),1)
+COMMONCFLAGS                   += -DOPENTHREAD_CONFIG_DUA_ENABLE=1
 endif
 
 ifeq ($(DYNAMIC_LOG_LEVEL),1)
@@ -181,6 +204,10 @@ ifeq ($(MQTT),1)
 COMMONCFLAGS                   += -DOPENTHREAD_CONFIG_MQTTSN_ENABLE=1
 endif
 
+ifeq ($(MULTIPLE_INSTANCE),1)
+COMMONCFLAGS                   += -DOPENTHREAD_CONFIG_MULTIPLE_INSTANCE_ENABLE=1
+endif
+
 ifeq ($(PLATFORM_UDP),1)
 COMMONCFLAGS                   += -DOPENTHREAD_CONFIG_PLATFORM_UDP_ENABLE=1
 endif
@@ -200,6 +227,12 @@ endif
 
 ifeq ($(SNTP_CLIENT),1)
 COMMONCFLAGS                   += -DOPENTHREAD_CONFIG_SNTP_CLIENT_ENABLE=1
+endif
+
+ifeq ($(THREAD_VERSION),1.1)
+COMMONCFLAGS                   += -DOPENTHREAD_CONFIG_THREAD_VERSION=2
+else ifeq ($(THREAD_VERSION),1.2)
+COMMONCFLAGS                   += -DOPENTHREAD_CONFIG_THREAD_VERSION=3
 endif
 
 ifeq ($(TIME_SYNC),1)
@@ -234,8 +267,10 @@ endif
 
 ifeq ($(SETTINGS_RAM),1)
 COMMONCFLAGS += -DOPENTHREAD_SETTINGS_RAM=1
-else
-COMMONCFLAGS += -DOPENTHREAD_SETTINGS_RAM=0
+endif
+
+ifeq ($(OTNS),1)
+COMMONCFLAGS += -DOPENTHREAD_CONFIG_OTNS_ENABLE=1
 endif
 
 ifeq ($(FULL_LOGS),1)
@@ -243,6 +278,7 @@ ifeq ($(FULL_LOGS),1)
 LOG_FLAGS += -DOPENTHREAD_CONFIG_LOG_LEVEL=OT_LOG_LEVEL_DEBG
 LOG_FLAGS += -DOPENTHREAD_CONFIG_LOG_API=1
 LOG_FLAGS += -DOPENTHREAD_CONFIG_LOG_ARP=1
+LOG_FLAGS += -DOPENTHREAD_CONFIG_LOG_BBR=1
 LOG_FLAGS += -DOPENTHREAD_CONFIG_LOG_CLI=1
 LOG_FLAGS += -DOPENTHREAD_CONFIG_LOG_COAP=1
 LOG_FLAGS += -DOPENTHREAD_CONFIG_LOG_ICMP=1

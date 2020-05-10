@@ -78,7 +78,7 @@ otError Icmp::SendEchoRequest(Message &aMessage, const MessageInfo &aMessageInfo
     icmpHeader.SetSequence(mEchoSequence++);
 
     SuccessOrExit(error = aMessage.Prepend(&icmpHeader, sizeof(icmpHeader)));
-    aMessage.SetOffset(0);
+    IgnoreError(aMessage.SetOffset(0));
     SuccessOrExit(error = Get<Ip6>().SendDatagram(aMessage, messageInfoLocal, kProtoIcmp6));
 
     otLogInfoIcmp("Sent echo request: (seq = %d)", icmpHeader.GetSequence());
@@ -90,19 +90,32 @@ exit:
 otError Icmp::SendError(IcmpHeader::Type   aType,
                         IcmpHeader::Code   aCode,
                         const MessageInfo &aMessageInfo,
-                        const Header &     aHeader)
+                        const Message &    aMessage)
 {
     otError     error = OT_ERROR_NONE;
     MessageInfo messageInfoLocal;
     Message *   message = NULL;
     IcmpHeader  icmp6Header;
+    Header      ip6Header;
+
+    VerifyOrExit(aMessage.GetLength() >= sizeof(ip6Header), error = OT_ERROR_INVALID_ARGS);
+
+    aMessage.Read(0, sizeof(ip6Header), &ip6Header);
+
+    if (ip6Header.GetNextHeader() == kProtoIcmp6)
+    {
+        VerifyOrExit(aMessage.GetLength() >= (sizeof(ip6Header) + sizeof(icmp6Header)), OT_NOOP);
+
+        aMessage.Read(sizeof(ip6Header), sizeof(icmp6Header), &icmp6Header);
+        VerifyOrExit(!icmp6Header.IsError(), OT_NOOP);
+    }
 
     messageInfoLocal = aMessageInfo;
 
     VerifyOrExit((message = Get<Ip6>().NewMessage(0)) != NULL, error = OT_ERROR_NO_BUFS);
-    SuccessOrExit(error = message->SetLength(sizeof(icmp6Header) + sizeof(aHeader)));
+    SuccessOrExit(error = message->SetLength(sizeof(icmp6Header) + sizeof(ip6Header)));
 
-    message->Write(sizeof(icmp6Header), sizeof(aHeader), &aHeader);
+    message->Write(sizeof(icmp6Header), sizeof(ip6Header), &ip6Header);
 
     icmp6Header.Init();
     icmp6Header.SetType(aType);
@@ -145,7 +158,7 @@ otError Icmp::HandleMessage(Message &aMessage, MessageInfo &aMessageInfo)
         SuccessOrExit(error = HandleEchoRequest(aMessage, aMessageInfo));
     }
 
-    aMessage.MoveOffset(sizeof(icmp6Header));
+    IgnoreError(aMessage.MoveOffset(sizeof(icmp6Header)));
 
     for (IcmpHandler *handler = mHandlers.GetHead(); handler; handler = handler->GetNext())
     {
@@ -188,8 +201,7 @@ otError Icmp::HandleEchoRequest(Message &aRequestMessage, const MessageInfo &aMe
     uint16_t    payloadLength;
 
     // always handle Echo Request destined for RLOC or ALOC
-    VerifyOrExit(ShouldHandleEchoRequest(aMessageInfo) || aMessageInfo.GetSockAddr().IsRoutingLocator() ||
-                 aMessageInfo.GetSockAddr().IsAnycastRoutingLocator());
+    VerifyOrExit(ShouldHandleEchoRequest(aMessageInfo) || aMessageInfo.GetSockAddr().IsIidLocator(), OT_NOOP);
 
     otLogInfoIcmp("Received Echo Request");
 

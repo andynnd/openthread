@@ -38,6 +38,7 @@
 #include "common/instance.hpp"
 #include "common/locator-getters.hpp"
 #include "meshcop/dataset_manager.hpp"
+#include "meshcop/meshcop.hpp"
 
 using namespace ot;
 
@@ -60,7 +61,7 @@ otError otDatasetGetActive(otInstance *aInstance, otOperationalDataset *aDataset
 {
     Instance &instance = *static_cast<Instance *>(aInstance);
 
-    assert(aDataset != NULL);
+    OT_ASSERT(aDataset != NULL);
 
     return instance.Get<MeshCoP::ActiveDataset>().Read(*aDataset);
 }
@@ -69,7 +70,7 @@ otError otDatasetSetActive(otInstance *aInstance, const otOperationalDataset *aD
 {
     Instance &instance = *static_cast<Instance *>(aInstance);
 
-    assert(aDataset != NULL);
+    OT_ASSERT(aDataset != NULL);
 
     return instance.Get<MeshCoP::ActiveDataset>().Save(*aDataset);
 }
@@ -78,7 +79,7 @@ otError otDatasetGetPending(otInstance *aInstance, otOperationalDataset *aDatase
 {
     Instance &instance = *static_cast<Instance *>(aInstance);
 
-    assert(aDataset != NULL);
+    OT_ASSERT(aDataset != NULL);
 
     return instance.Get<MeshCoP::PendingDataset>().Read(*aDataset);
 }
@@ -87,7 +88,7 @@ otError otDatasetSetPending(otInstance *aInstance, const otOperationalDataset *a
 {
     Instance &instance = *static_cast<Instance *>(aInstance);
 
-    assert(aDataset != NULL);
+    OT_ASSERT(aDataset != NULL);
 
     return instance.Get<MeshCoP::PendingDataset>().Save(*aDataset);
 }
@@ -133,3 +134,14 @@ otError otDatasetSendMgmtPendingSet(otInstance *                aInstance,
 
     return instance.Get<MeshCoP::PendingDataset>().SendSetRequest(*aDataset, aTlvs, aLength);
 }
+
+#if OPENTHREAD_FTD
+otError otDatasetGeneratePskc(const char *           aPassPhrase,
+                              const otNetworkName *  aNetworkName,
+                              const otExtendedPanId *aExtPanId,
+                              otPskc *               aPskc)
+{
+    return MeshCoP::GeneratePskc(aPassPhrase, *static_cast<const Mac::NetworkName *>(aNetworkName),
+                                 *static_cast<const Mac::ExtendedPanId *>(aExtPanId), *static_cast<Pskc *>(aPskc));
+}
+#endif // OPENTHREAD_FTD

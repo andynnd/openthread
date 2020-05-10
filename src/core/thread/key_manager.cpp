@@ -102,7 +102,7 @@ void KeyManager::Stop(void)
 #if OPENTHREAD_MTD || OPENTHREAD_FTD
 void KeyManager::SetPskc(const Pskc &aPskc)
 {
-    Get<Notifier>().Update(mPskc, aPskc, OT_CHANGED_PSKC);
+    IgnoreError(Get<Notifier>().Update(mPskc, aPskc, OT_CHANGED_PSKC));
     mIsPskcSet = true;
 }
 #endif // OPENTHREAD_MTD || OPENTHREAD_FTD
@@ -124,6 +124,7 @@ otError KeyManager::SetMasterKey(const MasterKey &aKey)
     parent->SetLinkFrameCounter(0);
     parent->SetMleFrameCounter(0);
 
+#if OPENTHREAD_FTD
     // reset router frame counters
     for (RouterTable::Iterator iter(GetInstance()); !iter.IsDone(); iter++)
     {
@@ -139,6 +140,7 @@ otError KeyManager::SetMasterKey(const MasterKey &aKey)
         iter.GetChild()->SetLinkFrameCounter(0);
         iter.GetChild()->SetMleFrameCounter(0);
     }
+#endif
 
 exit:
     return error;
@@ -167,7 +169,7 @@ void KeyManager::SetCurrentKeySequence(uint32_t aKeySequence)
         if (mKeySwitchGuardEnabled)
         {
             // Check if the guard timer has expired if key rotation is requested.
-            VerifyOrExit(mHoursSinceKeyRotation >= mKeySwitchGuardTime);
+            VerifyOrExit(mHoursSinceKeyRotation >= mKeySwitchGuardTime, OT_NOOP);
             StartKeyRotationTimer();
         }
 
@@ -204,7 +206,7 @@ void KeyManager::IncrementMacFrameCounter(void)
 
     if (mMacFrameCounter >= mStoredMacFrameCounter)
     {
-        Get<Mle::MleRouter>().Store();
+        IgnoreError(Get<Mle::MleRouter>().Store());
     }
 }
 
@@ -214,13 +216,19 @@ void KeyManager::IncrementMleFrameCounter(void)
 
     if (mMleFrameCounter >= mStoredMleFrameCounter)
     {
-        Get<Mle::MleRouter>().Store();
+        IgnoreError(Get<Mle::MleRouter>().Store());
     }
+}
+
+void KeyManager::SetKek(const Kek &aKek)
+{
+    mKek             = aKek;
+    mKekFrameCounter = 0;
 }
 
 void KeyManager::SetKek(const uint8_t *aKek)
 {
-    memcpy(mKek, aKek, sizeof(mKek));
+    memcpy(mKek.m8, aKek, sizeof(mKek));
     mKekFrameCounter = 0;
 }
 
@@ -238,7 +246,7 @@ exit:
 
 void KeyManager::SetSecurityPolicyFlags(uint8_t aSecurityPolicyFlags)
 {
-    Get<Notifier>().Update(mSecurityPolicyFlags, aSecurityPolicyFlags, OT_CHANGED_SECURITY_POLICY);
+    IgnoreError(Get<Notifier>().Update(mSecurityPolicyFlags, aSecurityPolicyFlags, OT_CHANGED_SECURITY_POLICY));
 }
 
 void KeyManager::StartKeyRotationTimer(void)

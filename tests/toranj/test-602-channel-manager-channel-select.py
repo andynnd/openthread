@@ -77,22 +77,34 @@ node.form('channel-manager', channel=24)
 # -----------------------------------------------------------------------------------------------------------------------
 # Test implementation
 
-all_channls_mask = int('0x7fff800', 0)
+all_channels_mask = int('0x7fff800', 0)
 chan_12_to_15_mask = int('0x000f000', 0)
 chan_15_to_17_mask = int('0x0038000', 0)
 
 # Set supported channel mask to be all channels
 node.set(wpan.WPAN_CHANNEL_MANAGER_SUPPORTED_CHANNEL_MASK,
-         str(all_channls_mask))
+         str(all_channels_mask))
 verify(
     int(node.get(wpan.WPAN_CHANNEL_MANAGER_SUPPORTED_CHANNEL_MASK), 0) ==
-    all_channls_mask)
+    all_channels_mask)
+
+WAIT_TIME = 15
+EXPECTED_SAMEPLE_COUNT = 970
 
 # Sleep for 4.5 second with speedup factor of 10,000 this is more than 12
-# hours.
+# hours. We sleep instead of immediately checking the sample counter in
+# order to not add more actions/events into simulation (specially since
+# we are running at very high speedup).
 time.sleep(4.5)
 
-verify(int(node.get(wpan.WPAN_CHANNEL_MONITOR_SAMPLE_COUNT), 0) > 970)
+
+def check_sample_count():
+    verify(
+        int(node.get(wpan.WPAN_CHANNEL_MONITOR_SAMPLE_COUNT), 0) >
+        EXPECTED_SAMEPLE_COUNT)
+
+
+wpan.verify_within(check_sample_count, WAIT_TIME)
 
 # Verify the initial value of `NEW_CHANNEL` (should be zero if there has
 # been no channel change so far).
@@ -157,7 +169,7 @@ node.set(wpan.WPAN_CHANNEL_MANAGER_NEW_CHANNEL,
          '12')  # request a channel change to 12
 verify(int(node.get(wpan.WPAN_CHANNEL_MANAGER_NEW_CHANNEL), 0) == 12)
 verify_channel([node], 12)
-node.set(wpan.WPAN_CHANNEL_MANAGER_FAVORED_CHANNEL_MASK, str(all_channls_mask))
+node.set(wpan.WPAN_CHANNEL_MANAGER_FAVORED_CHANNEL_MASK, str(all_channels_mask))
 node.set(wpan.WPAN_CHANNEL_MANAGER_CHANNEL_SELECT, 'true')
 verify(int(node.get(wpan.WPAN_CHANNEL_MANAGER_NEW_CHANNEL), 0) == 12)
 verify_channel([node], 12)

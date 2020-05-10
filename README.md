@@ -32,6 +32,10 @@ This project contains fork of OpenThread SDK which implements MQTT-SN protocol o
 * Sleep mode for sleeping devices
 
 ### About OpenThread
+[ot-gh-action-simulation]: https://github.com/openthread/openthread/actions?query=workflow%3ASimulation+branch%3Amaster+event%3Apush
+[ot-gh-action-simulation-svg]: https://github.com/openthread/openthread/workflows/Simulation/badge.svg?branch=master&event=push
+[ot-lgtm]: https://lgtm.com/projects/g/openthread/openthread/context:cpp
+[ot-lgtm-svg]: https://img.shields.io/lgtm/grade/cpp/g/openthread/openthread.svg?logo=lgtm&logoWidth=18
 
 OpenThread released by Google is an open-source implementation of the Thread networking protocol. Google Nest has released OpenThread to make the technology used in Nest products more broadly available to developers to accelerate the development of products for the connected home.
 

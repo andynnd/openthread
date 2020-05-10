@@ -46,13 +46,7 @@ DIST_SUBDIRS                            = \
 
 SUBDIRS =
 
-if OPENTHREAD_EXAMPLES_POSIX
-SUBDIRS                                += \
-    paho                                  \
-    $(NULL)
-endif
-
-if OPENTHREAD_EXAMPLES_EFR32MG12
+if OPENTHREAD_PLATFORM_EFR32MG12
 SUBDIRS                                += \
     silabs                                \
     jlink                                 \
@@ -60,14 +54,14 @@ SUBDIRS                                += \
     $(NULL)
 endif
 
-if OPENTHREAD_EXAMPLES_EFR32MG13
+if OPENTHREAD_PLATFORM_EFR32MG13
 SUBDIRS                                += \
     silabs                                \
     jlink                                 \
     $(NULL)
 endif
 
-if OPENTHREAD_EXAMPLES_EFR32MG21
+if OPENTHREAD_PLATFORM_EFR32MG21
 SUBDIRS                                += \
     silabs                                \
     jlink                                 \
@@ -75,9 +69,20 @@ SUBDIRS                                += \
     $(NULL)
 endif
 
-if OPENTHREAD_EXAMPLES_NRF52840
+if OPENTHREAD_PLATFORM_NRF52811
+SUBDIRS                                += \
+    NordicSemiconductor                   \
+    $(NULL)
+endif
+
+if OPENTHREAD_EXAMPLES_NRF52811
 SUBDIRS                                += \
     jlink                                 \
+    $(NULL)
+endif
+
+if OPENTHREAD_PLATFORM_NRF52833
+SUBDIRS                                += \
     NordicSemiconductor                   \
     paho                                  \
     $(NULL)
@@ -86,15 +91,19 @@ endif
 if OPENTHREAD_EXAMPLES_NRF52833
 SUBDIRS                                += \
     jlink                                 \
+    $(NULL)
+endif
+
+if OPENTHREAD_PLATFORM_NRF52840
+SUBDIRS                                += \
     NordicSemiconductor                   \
     paho                                  \
     $(NULL)
 endif
 
-if OPENTHREAD_EXAMPLES_NRF52811
+if OPENTHREAD_EXAMPLES_NRF52840
 SUBDIRS                                += \
     jlink                                 \
-    NordicSemiconductor                   \
     paho                                  \
     $(NULL)
 endif

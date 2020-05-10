@@ -76,6 +76,9 @@ ThreadNetif::ThreadNetif(Instance &aInstance)
     , mNetworkDataLocal(aInstance)
 #endif
     , mNetworkDataLeader(aInstance)
+#if OPENTHREAD_FTD || OPENTHREAD_CONFIG_BORDER_ROUTER_ENABLE || OPENTHREAD_CONFIG_TMF_NETDATA_SERVICE_ENABLE
+    , mNetworkDataNotifier(aInstance)
+#endif
 #if OPENTHREAD_FTD || OPENTHREAD_CONFIG_TMF_NETWORK_DIAG_MTD_ENABLE
     , mNetworkDiagnostic(aInstance)
 #endif
@@ -100,6 +103,15 @@ ThreadNetif::ThreadNetif(Instance &aInstance)
     , mLeader(aInstance)
     , mAddressResolver(aInstance)
 #endif // OPENTHREAD_FTD
+#if (OPENTHREAD_CONFIG_THREAD_VERSION >= OT_THREAD_VERSION_1_2)
+    , mBackboneRouterLeader(aInstance)
+#endif
+#if OPENTHREAD_FTD && OPENTHREAD_CONFIG_BACKBONE_ROUTER_ENABLE
+    , mBackboneRouterLocal(aInstance)
+#endif
+#if OPENTHREAD_CONFIG_DUA_ENABLE
+    , mDuaManager(aInstance)
+#endif
     , mChildSupervisor(aInstance)
     , mSupervisionListener(aInstance)
     , mAnnounceBegin(aInstance)
@@ -117,25 +129,25 @@ ThreadNetif::ThreadNetif(Instance &aInstance)
 
 void ThreadNetif::Up(void)
 {
-    VerifyOrExit(!mIsUp);
+    VerifyOrExit(!mIsUp, OT_NOOP);
 
     // Enable the MAC just in case it was disabled while the Interface was down.
     Get<Mac::Mac>().SetEnabled(true);
 #if OPENTHREAD_CONFIG_CHANNEL_MONITOR_ENABLE
-    Get<Utils::ChannelMonitor>().Start();
+    IgnoreError(Get<Utils::ChannelMonitor>().Start());
 #endif
     Get<MeshForwarder>().Start();
 
     mIsUp = true;
 
-    SubscribeAllNodesMulticast();
-    Get<Mle::MleRouter>().Enable();
-    Get<Coap::Coap>().Start(kCoapUdpPort);
+    IgnoreError(SubscribeAllNodesMulticast());
+    IgnoreError(Get<Mle::MleRouter>().Enable());
+    IgnoreError(Get<Coap::Coap>().Start(kCoapUdpPort));
 #if OPENTHREAD_CONFIG_DNS_CLIENT_ENABLE
-    Get<Dns::Client>().Start();
+    IgnoreError(Get<Dns::Client>().Start());
 #endif
 #if OPENTHREAD_CONFIG_SNTP_CLIENT_ENABLE
-    Get<Sntp::Client>().Start();
+    IgnoreError(Get<Sntp::Client>().Start());
 #endif
     Get<Notifier>().Signal(OT_CHANGED_THREAD_NETIF_STATE);
 
@@ -145,28 +157,28 @@ exit:
 
 void ThreadNetif::Down(void)
 {
-    VerifyOrExit(mIsUp);
+    VerifyOrExit(mIsUp, OT_NOOP);
 
 #if OPENTHREAD_CONFIG_DNS_CLIENT_ENABLE
-    Get<Dns::Client>().Stop();
+    IgnoreError(Get<Dns::Client>().Stop());
 #endif
 #if OPENTHREAD_CONFIG_SNTP_CLIENT_ENABLE
-    Get<Sntp::Client>().Stop();
+    IgnoreError(Get<Sntp::Client>().Stop());
 #endif
 #if OPENTHREAD_CONFIG_DTLS_ENABLE
     Get<Coap::CoapSecure>().Stop();
 #endif
-    Get<Coap::Coap>().Stop();
-    Get<Mle::MleRouter>().Disable();
+    IgnoreError(Get<Coap::Coap>().Stop());
+    IgnoreError(Get<Mle::MleRouter>().Disable());
     RemoveAllExternalUnicastAddresses();
     UnsubscribeAllExternalMulticastAddresses();
-    UnsubscribeAllRoutersMulticast();
-    UnsubscribeAllNodesMulticast();
+    IgnoreError(UnsubscribeAllRoutersMulticast());
+    IgnoreError(UnsubscribeAllNodesMulticast());
 
     mIsUp = false;
     Get<MeshForwarder>().Stop();
 #if OPENTHREAD_CONFIG_CHANNEL_MONITOR_ENABLE
-    Get<Utils::ChannelMonitor>().Stop();
+    IgnoreError(Get<Utils::ChannelMonitor>().Stop());
 #endif
     Get<Notifier>().Signal(OT_CHANGED_THREAD_NETIF_STATE);
 

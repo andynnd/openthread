@@ -75,7 +75,7 @@ extern "C" void otNcpInit(otInstance *aInstance)
 
     if (ncpUart == NULL || ncpUart != NcpBase::GetNcpInstance())
     {
-        assert(false);
+        OT_ASSERT(false);
     }
 }
 
@@ -97,15 +97,15 @@ NcpUart::NcpUart(Instance *aInstance)
 {
     mTxFrameBuffer.SetFrameAddedCallback(HandleFrameAddedToNcpBuffer, this);
 
-    otPlatUartEnable();
+    IgnoreError(otPlatUartEnable());
 }
 
 void NcpUart::HandleFrameAddedToNcpBuffer(void *                   aContext,
-                                          NcpFrameBuffer::FrameTag aTag,
-                                          NcpFrameBuffer::Priority aPriority,
-                                          NcpFrameBuffer *         aNcpFrameBuffer)
+                                          Spinel::Buffer::FrameTag aTag,
+                                          Spinel::Buffer::Priority aPriority,
+                                          Spinel::Buffer *         aBuffer)
 {
-    OT_UNUSED_VARIABLE(aNcpFrameBuffer);
+    OT_UNUSED_VARIABLE(aBuffer);
     OT_UNUSED_VARIABLE(aTag);
     OT_UNUSED_VARIABLE(aPriority);
 
@@ -116,7 +116,7 @@ void NcpUart::HandleFrameAddedToNcpBuffer(void)
 {
     if (mUartBuffer.IsEmpty())
     {
-        mUartSendTask.Post();
+        IgnoreError(mUartSendTask.Post());
     }
 }
 
@@ -134,9 +134,9 @@ void NcpUart::EncodeAndSendToUart(void)
     uint16_t len;
     bool     prevHostPowerState;
 #if OPENTHREAD_ENABLE_NCP_SPINEL_ENCRYPTER
-    NcpFrameBufferEncrypterReader &txFrameBuffer = mTxFrameBufferEncrypterReader;
+    Spinel::BufferEncrypterReader &txFrameBuffer = mTxFrameBufferEncrypterReader;
 #else
-    NcpFrameBuffer &txFrameBuffer = mTxFrameBuffer;
+    Spinel::Buffer &txFrameBuffer = mTxFrameBuffer;
 #endif // OPENTHREAD_ENABLE_NCP_SPINEL_ENCRYPTER
 
     while (!txFrameBuffer.IsEmpty() || (mState == kFinalizingFrame))
@@ -150,10 +150,10 @@ void NcpUart::EncodeAndSendToUart(void)
                 otPlatWakeHost();
             }
 
-            VerifyOrExit(!super_t::ShouldDeferHostSend());
+            VerifyOrExit(!super_t::ShouldDeferHostSend(), OT_NOOP);
             SuccessOrExit(mFrameEncoder.BeginFrame());
 
-            txFrameBuffer.OutFrameBegin();
+            IgnoreError(txFrameBuffer.OutFrameBegin());
 
             mState = kEncodingFrame;
 
@@ -170,7 +170,7 @@ void NcpUart::EncodeAndSendToUart(void)
             // call to OutFrameRemove.
             prevHostPowerState = mHostPowerStateInProgress;
 
-            txFrameBuffer.OutFrameRemove();
+            IgnoreError(txFrameBuffer.OutFrameRemove());
 
             if (prevHostPowerState && !mHostPowerStateInProgress)
             {
@@ -208,7 +208,7 @@ exit:
     {
         if (otPlatUartSend(mUartBuffer.GetFrame(), len) != OT_ERROR_NONE)
         {
-            assert(false);
+            OT_ASSERT(false);
         }
     }
 }
@@ -227,7 +227,7 @@ void NcpUart::HandleUartSendDone(void)
 {
     mUartBuffer.Clear();
 
-    mUartSendTask.Post();
+    IgnoreError(mUartSendTask.Post());
 }
 
 extern "C" void otPlatUartReceived(const uint8_t *aBuf, uint16_t aBufLength)
@@ -287,7 +287,7 @@ void NcpUart::HandleError(otError aError, uint8_t *aBuf, uint16_t aBufLength)
     snprintf(hexbuf, sizeof(hexbuf), "Framing error %d: [", aError);
 
     // Write out the first part of our log message.
-    otNcpStreamWrite(0, reinterpret_cast<uint8_t *>(hexbuf), static_cast<int>(strlen(hexbuf)));
+    IgnoreError(otNcpStreamWrite(0, reinterpret_cast<uint8_t *>(hexbuf), static_cast<int>(strlen(hexbuf))));
 
     // The first '3' comes from the trailing "]\n\000" at the end o the string.
     // The second '3' comes from the length of two hex digits and a space.
@@ -305,24 +305,24 @@ void NcpUart::HandleError(otError aError, uint8_t *aBuf, uint16_t aBufLength)
 
     // Write out the second part of our log message.
     // We skip the first byte since it has a space in it.
-    otNcpStreamWrite(0, reinterpret_cast<uint8_t *>(hexbuf + 1), static_cast<int>(strlen(hexbuf) - 1));
+    IgnoreError(otNcpStreamWrite(0, reinterpret_cast<uint8_t *>(hexbuf + 1), static_cast<int>(strlen(hexbuf) - 1)));
 }
 
 #if OPENTHREAD_ENABLE_NCP_SPINEL_ENCRYPTER
 
-NcpUart::NcpFrameBufferEncrypterReader::NcpFrameBufferEncrypterReader(NcpFrameBuffer &aTxFrameBuffer)
+NcpUart::Spinel::BufferEncrypterReader::SpinelBufferEncrypterReader(Spinel::Buffer &aTxFrameBuffer)
     : mTxFrameBuffer(aTxFrameBuffer)
     , mDataBufferReadIndex(0)
     , mOutputDataLength(0)
 {
 }
 
-bool NcpUart::NcpFrameBufferEncrypterReader::IsEmpty(void) const
+bool NcpUart::Spinel::BufferEncrypterReader::IsEmpty(void) const
 {
     return mTxFrameBuffer.IsEmpty() && !mOutputDataLength;
 }
 
-otError NcpUart::NcpFrameBufferEncrypterReader::OutFrameBegin(void)
+otError NcpUart::Spinel::BufferEncrypterReader::OutFrameBegin(void)
 {
     otError status = OT_ERROR_FAILED;
 
@@ -334,7 +334,7 @@ otError NcpUart::NcpFrameBufferEncrypterReader::OutFrameBegin(void)
 
         if (mOutputDataLength > 0)
         {
-            assert(mOutputDataLength <= sizeof(mDataBuffer));
+            OT_ASSERT(mOutputDataLength <= sizeof(mDataBuffer));
             mTxFrameBuffer.OutFrameRead(mOutputDataLength, mDataBuffer);
 
             if (!SpinelEncrypter::EncryptOutbound(mDataBuffer, sizeof(mDataBuffer), &mOutputDataLength))
@@ -352,22 +352,22 @@ otError NcpUart::NcpFrameBufferEncrypterReader::OutFrameBegin(void)
     return status;
 }
 
-bool NcpUart::NcpFrameBufferEncrypterReader::OutFrameHasEnded(void)
+bool NcpUart::Spinel::BufferEncrypterReader::OutFrameHasEnded(void)
 {
     return (mDataBufferReadIndex >= mOutputDataLength);
 }
 
-uint8_t NcpUart::NcpFrameBufferEncrypterReader::OutFrameReadByte(void)
+uint8_t NcpUart::Spinel::BufferEncrypterReader::OutFrameReadByte(void)
 {
     return mDataBuffer[mDataBufferReadIndex++];
 }
 
-otError NcpUart::NcpFrameBufferEncrypterReader::OutFrameRemove(void)
+otError NcpUart::Spinel::BufferEncrypterReader::OutFrameRemove(void)
 {
     return mTxFrameBuffer.OutFrameRemove();
 }
 
-void NcpUart::NcpFrameBufferEncrypterReader::Reset(void)
+void NcpUart::Spinel::BufferEncrypterReader::Reset(void)
 {
     mOutputDataLength    = 0;
     mDataBufferReadIndex = 0;

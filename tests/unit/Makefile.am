@@ -53,20 +53,21 @@ AM_CPPFLAGS                                                         = \
     -DOPENTHREAD_FTD=1                                                \
     -DOPENTHREAD_MTD=0                                                \
     -DOPENTHREAD_RADIO=0                                              \
+    -DOPENTHREAD_SPINEL_CONFIG_OPENTHREAD_MESSAGE_ENABLE=1            \
     -I$(top_srcdir)/include                                           \
     -I$(top_srcdir)/src                                               \
     -I$(top_srcdir)/src/core                                          \
     $(NULL)
 
-if OPENTHREAD_EXAMPLES_POSIX
+if OPENTHREAD_EXAMPLES_SIMULATION
 AM_CPPFLAGS                                                        += \
     -I$(top_srcdir)/examples/platforms                                \
     $(NULL)
 endif
 
-if OPENTHREAD_PLATFORM_POSIX_APP
+if OPENTHREAD_PLATFORM_POSIX
 AM_CPPFLAGS                                                        += \
-    -DOPENTHREAD_PLATFORM_POSIX_APP=1                                 \
+    -DOPENTHREAD_PLATFORM_POSIX=1                                     \
     -I$(top_srcdir)/src/posix/platform                                \
     $(NULL)
 endif
@@ -91,7 +92,7 @@ COMMON_LDADD                                                       += \
     $(NULL)
 endif
 
-if OPENTHREAD_PLATFORM_POSIX_APP
+if OPENTHREAD_PLATFORM_POSIX
 COMMON_LDADD                                                       += \
     -lutil
     $(NULL)
@@ -108,6 +109,7 @@ check_PROGRAMS                                                     += \
     test-aes                                                          \
     test-child                                                        \
     test-child-table                                                  \
+    test-flash                                                        \
     test-heap                                                         \
     test-hmac-sha256                                                  \
     test-ip6-address                                                  \
@@ -129,7 +131,7 @@ check_PROGRAMS                                                     += \
 if OPENTHREAD_ENABLE_NCP
 check_PROGRAMS                                                     += \
     test-hdlc                                                         \
-    test-ncp-buffer                                                   \
+    test-spinel-buffer                                                \
     test-spinel-decoder                                               \
     test-spinel-encoder                                               \
     $(NULL)
@@ -173,6 +175,9 @@ test_child_SOURCES           = $(COMMON_SOURCES) test_child.cpp
 test_child_table_LDADD       = $(COMMON_LDADD)
 test_child_table_SOURCES     = $(COMMON_SOURCES) test_child_table.cpp
 
+test_flash_LDADD             = $(COMMON_LDADD)
+test_flash_SOURCES           = $(COMMON_SOURCES) test_flash.cpp
+
 test_hdlc_LDADD              = $(COMMON_LDADD)
 test_hdlc_SOURCES            = $(COMMON_SOURCES) test_hdlc.cpp
 
@@ -206,8 +211,8 @@ test_message_queue_SOURCES   = $(COMMON_SOURCES) test_message_queue.cpp
 test_mqttsn_LDADD            = $(COMMON_LDADD)
 test_mqttsn_SOURCES          = test_platform.cpp test_mqttsn.cpp
 
-test_ncp_buffer_LDADD        = $(COMMON_LDADD)
-test_ncp_buffer_SOURCES      = $(COMMON_SOURCES) test_ncp_buffer.cpp
+test_spinel_buffer_LDADD        = $(COMMON_LDADD)
+test_spinel_buffer_SOURCES      = $(COMMON_SOURCES) test_spinel_buffer.cp
 
 test_netif_LDADD             = $(COMMON_LDADD)
 test_netif_SOURCES           = $(COMMON_SOURCES) test_netif.cpp
@@ -235,34 +240,6 @@ test_timer_SOURCES           = $(COMMON_SOURCES) test_timer.cpp
 
 test_toolchain_LDADD         = $(NULL)
 test_toolchain_SOURCES       = test_toolchain.cpp test_toolchain_c.c
-
-PRETTY_FILES                                                        = \
-    $(noinst_HEADERS)                                                 \
-    $(test_address_sanitizer_SOURCES)                                 \
-    $(test_aes_SOURCES)                                               \
-    $(test_child_SOURCES)                                             \
-    $(test_child_table_SOURCES)                                       \
-    $(test_hdlc_SOURCES)                                              \
-    $(test_heap_SOURCES)                                              \
-    $(test_hmac_sha256_SOURCES)                                       \
-    $(test_link_quality_SOURCES)                                      \
-    $(test_linked_list_SOURCES)                                       \
-    $(test_lowpan_SOURCES)                                            \
-    $(test_mac_frame_SOURCES)                                         \
-    $(test_message_queue_SOURCES)                                     \
-    $(test_message_SOURCES)                                           \
-    $(test_mqttsn_SOURCES)                                            \
-    $(test_ncp_buffer_SOURCES)                                        \
-    $(test_netif_SOURCES)                                             \
-    $(test_network_data_SOURCES)                                      \
-    $(test_priority_queue_SOURCES)                                    \
-    $(test_pskc_SOURCES)                                              \
-    $(test_spinel_decoder_SOURCES)                                    \
-    $(test_spinel_encoder_SOURCES)                                    \
-    $(test_string_SOURCES)                                            \
-    $(test_timer_SOURCES)                                             \
-    $(test_toolchain_SOURCES)                                         \
-    $(NULL)
 
 if OPENTHREAD_BUILD_COVERAGE
 CLEANFILES                   = $(wildcard *.gcda *.gcno)

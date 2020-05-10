@@ -51,7 +51,7 @@ AnnounceBeginServer::AnnounceBeginServer(Instance &aInstance)
     : AnnounceSenderBase(aInstance, &AnnounceBeginServer::HandleTimer)
     , mAnnounceBegin(OT_URI_PATH_ANNOUNCE_BEGIN, &AnnounceBeginServer::HandleRequest, this)
 {
-    Get<Coap::Coap>().AddResource(mAnnounceBegin);
+    IgnoreError(Get<Coap::Coap>().AddResource(mAnnounceBegin));
 }
 
 otError AnnounceBeginServer::SendAnnounce(uint32_t aChannelMask)
@@ -72,21 +72,18 @@ void AnnounceBeginServer::HandleRequest(void *aContext, otMessage *aMessage, con
 
 void AnnounceBeginServer::HandleRequest(Coap::Message &aMessage, const Ip6::MessageInfo &aMessageInfo)
 {
-    uint32_t           mask;
-    MeshCoP::CountTlv  count;
-    MeshCoP::PeriodTlv period;
-    Ip6::MessageInfo   responseInfo(aMessageInfo);
+    uint32_t         mask;
+    uint8_t          count;
+    uint16_t         period;
+    Ip6::MessageInfo responseInfo(aMessageInfo);
 
-    VerifyOrExit(aMessage.GetCode() == OT_COAP_CODE_POST);
-    VerifyOrExit((mask = MeshCoP::ChannelMaskTlv::GetChannelMask(aMessage)) != 0);
+    VerifyOrExit(aMessage.GetCode() == OT_COAP_CODE_POST, OT_NOOP);
+    VerifyOrExit((mask = MeshCoP::ChannelMaskTlv::GetChannelMask(aMessage)) != 0, OT_NOOP);
 
-    SuccessOrExit(MeshCoP::Tlv::GetTlv(aMessage, MeshCoP::Tlv::kCount, sizeof(count), count));
-    VerifyOrExit(count.IsValid());
+    SuccessOrExit(Tlv::ReadUint8Tlv(aMessage, MeshCoP::Tlv::kCount, count));
+    SuccessOrExit(Tlv::ReadUint16Tlv(aMessage, MeshCoP::Tlv::kPeriod, period));
 
-    SuccessOrExit(MeshCoP::Tlv::GetTlv(aMessage, MeshCoP::Tlv::kPeriod, sizeof(period), period));
-    VerifyOrExit(period.IsValid());
-
-    SendAnnounce(mask, count.GetCount(), period.GetPeriod());
+    IgnoreError(SendAnnounce(mask, count, period));
 
     if (aMessage.IsConfirmable() && !aMessageInfo.GetSockAddr().IsMulticast())
     {

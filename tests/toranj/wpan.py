@@ -244,6 +244,14 @@ JOIN_TYPE_END_DEVICE = 'e'
 JOIN_TYPE_SLEEPY_END_DEVICE = 's'
 
 # -----------------------------------------------------------------------------------------------------------------------
+# Address Cache Table Entry States
+
+ADDRESS_CACHE_ENTRY_STATE_CACHED = "cached"
+ADDRESS_CACHE_ENTRY_STATE_SNOOPED = "snooped"
+ADDRESS_CACHE_ENTRY_STATE_QUERY = "query"
+ADDRESS_CACHE_ENTRY_STATE_RETRY_QUERY = "retry-query"
+
+# -----------------------------------------------------------------------------------------------------------------------
 # Bit Flags for Thread Device Mode `WPAN_THREAD_DEVICE_MODE`
 
 THREAD_MODE_FLAG_FULL_NETWORK_DATA = (1 << 0)
@@ -281,13 +289,13 @@ class Node(object):
     _WPANCTL = '%s/bin/wpanctl' % _WPANTUND_PREFIX
 
     _OT_NCP_FTD = '%s/examples/apps/ncp/ot-ncp-ftd' % _OT_BUILDDIR
-    _OT_NCP_FTD_POSIX_APP = '%s/src/posix/ot-ncp' % _OT_BUILDDIR
+    _OT_NCP_FTD_POSIX = '%s/src/posix/ot-ncp' % _OT_BUILDDIR
     _OT_RCP = '%s/examples/apps/ncp/ot-rcp' % _OT_BUILDDIR
 
     # Environment variable used to determine how to run OpenThread
-    # If set to 1, then posix-app (`ot-ncp`) is used along with a posix RCP `ot-rcp`.
+    # If set to 1, then posix NCP (`ot-ncp`) is used along with a posix RCP `ot-rcp`.
     # Otherwise, the posix NCP `ot-ncp-ftd` is used
-    _POSIX_APP_ENV_VAR = 'TORANJ_POSIX_APP_RCP_MODEL'
+    _POSIX_ENV_VAR = 'TORANJ_POSIX_RCP_MODEL'
 
     # determines if the wpantund logs are saved in file or sent to stdout
     _TUND_LOG_TO_FILE = True
@@ -312,17 +320,18 @@ class Node(object):
         self._interface_name = self._INTFC_NAME_PREFIX + str(index)
         self._verbose = verbose
 
-        # Check if env variable `TORANJ_POSIX_APP_RCP_MODEL` is defined
+        # Check if env variable `TORANJ_POSIX_RCP_MODEL` is defined
         # and use it to determine if to use operate in "posix-ncp-app".
-        if self._POSIX_APP_ENV_VAR in os.environ:
-            self._use_posix_app_with_rcp = (
-                os.environ[self._POSIX_APP_ENV_VAR] in ['1', 'yes'])
+        if self._POSIX_ENV_VAR in os.environ:
+            self._use_posix_with_rcp = (os.environ[self._POSIX_ENV_VAR] in [
+                '1', 'yes'
+            ])
         else:
-            self._use_posix_app_with_rcp = False
+            self._use_posix_with_rcp = False
 
-        if self._use_posix_app_with_rcp:
+        if self._use_posix_with_rcp:
             ncp_socket_path = 'system:{} -s {} {} {}'.format(
-                self._OT_NCP_FTD_POSIX_APP, self._SPEED_UP_FACTOR, self._OT_RCP,
+                self._OT_NCP_FTD_POSIX, self._SPEED_UP_FACTOR, self._OT_RCP,
                 index)
         else:
             ncp_socket_path = 'system:{} {} {}'.format(self._OT_NCP_FTD, index,
@@ -376,8 +385,8 @@ class Node(object):
         return self._tund_log_file
 
     @property
-    def using_posix_app_with_rcp(self):
-        return self._use_posix_app_with_rcp
+    def using_posix_with_rcp(self):
+        return self._use_posix_with_rcp
 
     # ------------------------------------------------------------------------------------------------------------------
     # Executing a `wpanctl` command
@@ -551,7 +560,7 @@ class Node(object):
             'add-route ' + route_prefix +
             (' -l {}'.format(prefix_len) if prefix_len is not None else '') +
             (' -p {}'.format(priority) if priority is not None else '') +
-            ('' if stable else '-n'))
+            ('' if stable else ' -n'))
 
     def remove_route(self,
                      route_prefix,
@@ -1529,8 +1538,8 @@ class AddressCacheEntry(object):
 
         # Example of expected text:
         #
-        # '\t"fd00:1234::d427:a1d9:6204:dbae -> 0x9c00, age:0"'
-        #
+        # '\t"fd00:1234::100:8 -> 0xfffe, Age:1, State:query, CanEvict:no, Timeout:3, RetryDelay:15"`
+        # '\t"fd00:1234::3:2 -> 0x2000, Age:0, State:cached, LastTrans:0, ML-EID:fd40:ea58:a88c:0:b7ab:4919:aa7b:11a3"`
 
         # We get rid of the first two chars `\t"' and last char '"', split the rest using whitespace as separator.
         # Then remove any ',' at end of items in the list.
@@ -1547,7 +1556,16 @@ class AddressCacheEntry(object):
         # separator
         dict = {item.split(':')[0]: item.split(':')[1] for item in items[3:]}
 
-        self._age = int(dict['age'], 0)
+        self._age = int(dict['Age'], 0)
+
+        self._state = dict['State']
+
+        if self._state == ADDRESS_CACHE_ENTRY_STATE_CACHED:
+            self._last_trans = int(dict.get("LastTrans", "-1"), 0)
+        else:
+            self._can_evict = (dict['CanEvict'] == 'yes')
+            self._timeout = int(dict['Timeout'])
+            self._retry_delay = int(dict['RetryDelay'])
 
     @property
     def address(self):
@@ -1560,6 +1578,25 @@ class AddressCacheEntry(object):
     @property
     def age(self):
         return self._age
+
+    @property
+    def state(self):
+        return self._state
+
+    def can_evict(self):
+        return self._can_evict
+
+    @property
+    def timeout(self):
+        return self._timeout
+
+    @property
+    def retry_delay(self):
+        return self._retry_delay
+
+    @property
+    def last_trans(self):
+        return self._last_trans
 
     def __repr__(self):
         return 'AddressCacheEntry({})'.format(self.__dict__)

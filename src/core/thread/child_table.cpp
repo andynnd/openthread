@@ -80,7 +80,7 @@ void ChildTable::Iterator::Advance(void)
     Child *     listStart  = &childTable.mChildren[0];
     Child *     listEnd    = &childTable.mChildren[childTable.mMaxChildrenAllowed];
 
-    VerifyOrExit(mChild != NULL);
+    VerifyOrExit(mChild != NULL, OT_NOOP);
 
     do
     {
@@ -102,7 +102,11 @@ ChildTable::ChildTable(Instance &aInstance)
     : InstanceLocator(aInstance)
     , mMaxChildrenAllowed(kMaxChildren)
 {
-    Clear();
+    for (Child *child = &mChildren[0]; child < OT_ARRAY_END(mChildren); child++)
+    {
+        child->Init(aInstance);
+        child->Clear();
+    }
 }
 
 void ChildTable::Clear(void)
@@ -117,7 +121,7 @@ Child *ChildTable::GetChildAtIndex(uint16_t aChildIndex)
 {
     Child *child = NULL;
 
-    VerifyOrExit(aChildIndex < mMaxChildrenAllowed);
+    VerifyOrExit(aChildIndex < mMaxChildrenAllowed, OT_NOOP);
     child = &mChildren[aChildIndex];
 
 exit:

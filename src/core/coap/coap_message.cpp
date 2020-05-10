@@ -47,10 +47,10 @@ void Message::Init(void)
 {
     GetHelpData().Clear();
     SetVersion(kVersion1);
-    SetOffset(0);
+    IgnoreError(SetOffset(0));
     GetHelpData().mHeaderLength = kMinHeaderLength;
 
-    SetLength(GetHelpData().mHeaderLength);
+    IgnoreError(SetLength(GetHelpData().mHeaderLength));
 }
 
 void Message::Init(Type aType, Code aCode)
@@ -187,6 +187,24 @@ exit:
     return error;
 }
 
+otError Message::AppendBlockOption(Message::BlockType aType, uint32_t aNum, bool aMore, otCoapBlockSize aSize)
+{
+    otError  error   = OT_ERROR_NONE;
+    uint32_t encoded = aSize;
+
+    VerifyOrExit(aType == kBlockType1 || aType == kBlockType2, error = OT_ERROR_INVALID_ARGS);
+    VerifyOrExit(aSize <= OT_COAP_BLOCK_SIZE_1024, error = OT_ERROR_INVALID_ARGS);
+    VerifyOrExit(aNum < kBlockNumMax, error = OT_ERROR_INVALID_ARGS);
+
+    encoded |= static_cast<uint32_t>(aMore << kBlockMOffset);
+    encoded |= aNum << kBlockNumOffset;
+
+    error = AppendUintOption((aType == kBlockType1) ? OT_COAP_OPTION_BLOCK1 : OT_COAP_OPTION_BLOCK2, encoded);
+
+exit:
+    return error;
+}
+
 otError Message::AppendProxyUriOption(const char *aProxyUri)
 {
     return AppendStringOption(OT_COAP_OPTION_PROXY_URI, aProxyUri);
@@ -217,7 +235,7 @@ otError Message::SetPayloadMarker(void)
     GetHelpData().mHeaderLength = GetLength();
 
     // Set offset to the start of payload.
-    SetOffset(GetHelpData().mHeaderLength);
+    IgnoreError(SetOffset(GetHelpData().mHeaderLength));
 
 exit:
     return error;
@@ -228,14 +246,16 @@ otError Message::ParseHeader(void)
     otError        error = OT_ERROR_NONE;
     OptionIterator iterator;
 
-    assert(mBuffer.mHead.mInfo.mReserved >=
-           sizeof(GetHelpData()) +
-               static_cast<size_t>((reinterpret_cast<uint8_t *>(&GetHelpData()) - mBuffer.mHead.mData)));
+    OT_ASSERT(mBuffer.mHead.mInfo.mReserved >=
+              sizeof(GetHelpData()) +
+                  static_cast<size_t>((reinterpret_cast<uint8_t *>(&GetHelpData()) - mBuffer.mHead.mData)));
 
     GetHelpData().Clear();
 
     GetHelpData().mHeaderOffset = GetOffset();
     Read(GetHelpData().mHeaderOffset, sizeof(GetHelpData().mHeader), &GetHelpData().mHeader);
+
+    VerifyOrExit(GetTokenLength() <= kMaxTokenLength, error = OT_ERROR_PARSE);
 
     SuccessOrExit(error = iterator.Init(this));
     for (const otCoapOption *option = iterator.GetFirstOption(); option != NULL; option = iterator.GetNextOption())
@@ -244,7 +264,7 @@ otError Message::ParseHeader(void)
 
     VerifyOrExit(iterator.mNextOptionOffset > 0, error = OT_ERROR_PARSE);
     GetHelpData().mHeaderLength = iterator.mNextOptionOffset - GetHelpData().mHeaderOffset;
-    MoveOffset(GetHelpData().mHeaderLength);
+    IgnoreError(MoveOffset(GetHelpData().mHeaderLength));
 
 exit:
     return error;
@@ -264,9 +284,9 @@ otError Message::SetToken(uint8_t aTokenLength)
 {
     uint8_t token[kMaxTokenLength] = {0};
 
-    assert(aTokenLength <= sizeof(token));
+    OT_ASSERT(aTokenLength <= sizeof(token));
 
-    Random::NonCrypto::FillBuffer(token, aTokenLength);
+    IgnoreError(Random::Crypto::FillBuffer(token, aTokenLength));
 
     return SetToken(token, aTokenLength);
 }
@@ -284,7 +304,7 @@ Message *Message::Clone(uint16_t aLength) const
 {
     Message *message = static_cast<Message *>(ot::Message::Clone(aLength));
 
-    VerifyOrExit(message != NULL);
+    VerifyOrExit(message != NULL, OT_NOOP);
 
     memcpy(&message->GetHelpData(), &GetHelpData(), sizeof(GetHelpData()));
 
@@ -412,6 +432,23 @@ exit:
     return err;
 }
 
+const otCoapOption *OptionIterator::GetFirstOptionMatching(uint16_t aOption)
+{
+    const otCoapOption *rval = NULL;
+
+    for (const otCoapOption *option = GetFirstOption(); option != NULL; option = GetNextOption())
+    {
+        if (option->mNumber == aOption)
+        {
+            // Found, stop searching
+            rval = option;
+            break;
+        }
+    }
+
+    return rval;
+}
+
 const otCoapOption *OptionIterator::GetFirstOption(void)
 {
     const otCoapOption *option  = NULL;
@@ -427,6 +464,23 @@ const otCoapOption *OptionIterator::GetFirstOption(void)
     }
 
     return option;
+}
+
+const otCoapOption *OptionIterator::GetNextOptionMatching(uint16_t aOption)
+{
+    const otCoapOption *rval = NULL;
+
+    for (const otCoapOption *option = GetNextOption(); option != NULL; option = GetNextOption())
+    {
+        if (option->mNumber == aOption)
+        {
+            // Found, stop searching
+            rval = option;
+            break;
+        }
+    }
+
+    return rval;
 }
 
 const otCoapOption *OptionIterator::GetNextOption(void)
@@ -510,6 +564,25 @@ exit:
     }
 
     return rval;
+}
+
+otError OptionIterator::GetOptionValue(uint64_t &aValue) const
+{
+    otError error = OT_ERROR_NONE;
+    uint8_t value[sizeof(aValue)];
+
+    VerifyOrExit(mOption.mLength <= sizeof(aValue), error = OT_ERROR_NO_BUFS);
+    SuccessOrExit(error = GetOptionValue(value));
+
+    aValue = 0;
+    for (uint16_t pos = 0; pos < mOption.mLength; pos++)
+    {
+        aValue <<= 8;
+        aValue |= value[pos];
+    }
+
+exit:
+    return error;
 }
 
 otError OptionIterator::GetOptionValue(void *aValue) const

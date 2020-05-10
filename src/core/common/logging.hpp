@@ -90,6 +90,7 @@ extern "C" {
 #define _OT_REGION_CLI_PREFIX "-CLI-----: "
 #define _OT_REGION_CORE_PREFIX "-CORE----: "
 #define _OT_REGION_UTIL_PREFIX "-UTIL----: "
+#define _OT_REGION_BBR_PREFIX "-BBR-----: "
 #else
 #define _OT_REGION_API_PREFIX _OT_REGION_SUFFIX
 #define _OT_REGION_MLE_PREFIX _OT_REGION_SUFFIX
@@ -108,6 +109,7 @@ extern "C" {
 #define _OT_REGION_CLI_PREFIX _OT_REGION_SUFFIX
 #define _OT_REGION_CORE_PREFIX _OT_REGION_SUFFIX
 #define _OT_REGION_UTIL_PREFIX _OT_REGION_SUFFIX
+#define _OT_REGION_BBR_PREFIX _OT_REGION_SUFFIX
 #endif
 
 /**
@@ -116,15 +118,13 @@ extern "C" {
  * Logging at log level critical.
  *
  * @param[in]  aRegion   The log region.
- * @param[in]  aFormat   A pointer to the format string.
  * @param[in]  ...       Arguments for the format specification.
  *
  */
 #if OPENTHREAD_CONFIG_LOG_LEVEL >= OT_LOG_LEVEL_CRIT
-#define otLogCrit(aRegion, aFormat, ...) \
-    _otLogFormatter(OT_LOG_LEVEL_CRIT, aRegion, _OT_LEVEL_CRIT_PREFIX aFormat, ##__VA_ARGS__)
+#define otLogCrit(aRegion, ...) _otLogFormatter(OT_LOG_LEVEL_CRIT, aRegion, _OT_LEVEL_CRIT_PREFIX __VA_ARGS__, NULL)
 #else
-#define otLogCrit(aRegion, aFormat, ...)
+#define otLogCrit(aRegion, ...)
 #endif
 
 /**
@@ -133,15 +133,13 @@ extern "C" {
  * Logging at log level warning.
  *
  * @param[in]  aRegion   The log region.
- * @param[in]  aFormat   A pointer to the format string.
  * @param[in]  ...       Arguments for the format specification.
  *
  */
 #if OPENTHREAD_CONFIG_LOG_LEVEL >= OT_LOG_LEVEL_WARN
-#define otLogWarn(aRegion, aFormat, ...) \
-    _otLogFormatter(OT_LOG_LEVEL_WARN, aRegion, _OT_LEVEL_WARN_PREFIX aFormat, ##__VA_ARGS__)
+#define otLogWarn(aRegion, ...) _otLogFormatter(OT_LOG_LEVEL_WARN, aRegion, _OT_LEVEL_WARN_PREFIX __VA_ARGS__, NULL)
 #else
-#define otLogWarn(aRegion, aFormat, ...)
+#define otLogWarn(aRegion, ...)
 #endif
 
 /**
@@ -150,15 +148,13 @@ extern "C" {
  * Logging at log level note
  *
  * @param[in]  aRegion   The log region.
- * @param[in]  aFormat   A pointer to the format string.
  * @param[in]  ...       Arguments for the format specification.
  *
  */
 #if OPENTHREAD_CONFIG_LOG_LEVEL >= OT_LOG_LEVEL_NOTE
-#define otLogNote(aRegion, aFormat, ...) \
-    _otLogFormatter(OT_LOG_LEVEL_NOTE, aRegion, _OT_LEVEL_NOTE_PREFIX aFormat, ##__VA_ARGS__)
+#define otLogNote(aRegion, ...) _otLogFormatter(OT_LOG_LEVEL_NOTE, aRegion, _OT_LEVEL_NOTE_PREFIX __VA_ARGS__, NULL)
 #else
-#define otLogNote(aRegion, aFormat, ...)
+#define otLogNote(aRegion, ...)
 #endif
 
 /**
@@ -167,15 +163,13 @@ extern "C" {
  * Logging at log level info.
  *
  * @param[in]  aRegion   The log region.
- * @param[in]  aFormat   A pointer to the format string.
  * @param[in]  ...       Arguments for the format specification.
  *
  */
 #if OPENTHREAD_CONFIG_LOG_LEVEL >= OT_LOG_LEVEL_INFO
-#define otLogInfo(aRegion, aFormat, ...) \
-    _otLogFormatter(OT_LOG_LEVEL_INFO, aRegion, _OT_LEVEL_INFO_PREFIX aFormat, ##__VA_ARGS__)
+#define otLogInfo(aRegion, ...) _otLogFormatter(OT_LOG_LEVEL_INFO, aRegion, _OT_LEVEL_INFO_PREFIX __VA_ARGS__, NULL)
 #else
-#define otLogInfo(aRegion, aFormat, ...)
+#define otLogInfo(aRegion, ...)
 #endif
 
 /**
@@ -184,15 +178,13 @@ extern "C" {
  * Logging at log level debug.
  *
  * @param[in]  aRegion   The log region.
- * @param[in]  aFormat   A pointer to the format string.
  * @param[in]  ...       Arguments for the format specification.
  *
  */
 #if OPENTHREAD_CONFIG_LOG_LEVEL >= OT_LOG_LEVEL_DEBG
-#define otLogDebg(aRegion, aFormat, ...) \
-    _otLogFormatter(OT_LOG_LEVEL_DEBG, aRegion, _OT_LEVEL_DEBG_PREFIX aFormat, ##__VA_ARGS__)
+#define otLogDebg(aRegion, ...) _otLogFormatter(OT_LOG_LEVEL_DEBG, aRegion, _OT_LEVEL_DEBG_PREFIX __VA_ARGS__, NULL)
 #else
-#define otLogDebg(aRegion, aFormat, ...)
+#define otLogDebg(aRegion, ...)
 #endif
 
 /**
@@ -200,8 +192,7 @@ extern "C" {
  *
  * This method generates a log with level critical for the API region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -210,8 +201,7 @@ extern "C" {
  *
  * This method generates a log with level warning for the API region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -220,8 +210,7 @@ extern "C" {
  *
  * This method generates a log with level note for the API region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -230,8 +219,7 @@ extern "C" {
  *
  * This method generates a log with level info for the API region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -240,22 +228,21 @@ extern "C" {
  *
  * This method generates a log with level debug for the API region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 #if OPENTHREAD_CONFIG_LOG_API == 1
-#define otLogCritApi(aFormat, ...) otLogCrit(OT_LOG_REGION_API, _OT_REGION_API_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogWarnApi(aFormat, ...) otLogWarn(OT_LOG_REGION_API, _OT_REGION_API_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogNoteApi(aFormat, ...) otLogNote(OT_LOG_REGION_API, _OT_REGION_API_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogInfoApi(aFormat, ...) otLogInfo(OT_LOG_REGION_API, _OT_REGION_API_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogDebgApi(aFormat, ...) otLogDebg(OT_LOG_REGION_API, _OT_REGION_API_PREFIX aFormat, ##__VA_ARGS__)
+#define otLogCritApi(...) otLogCrit(OT_LOG_REGION_API, _OT_REGION_API_PREFIX __VA_ARGS__)
+#define otLogWarnApi(...) otLogWarn(OT_LOG_REGION_API, _OT_REGION_API_PREFIX __VA_ARGS__)
+#define otLogNoteApi(...) otLogNote(OT_LOG_REGION_API, _OT_REGION_API_PREFIX __VA_ARGS__)
+#define otLogInfoApi(...) otLogInfo(OT_LOG_REGION_API, _OT_REGION_API_PREFIX __VA_ARGS__)
+#define otLogDebgApi(...) otLogDebg(OT_LOG_REGION_API, _OT_REGION_API_PREFIX __VA_ARGS__)
 #else
-#define otLogCritApi(aFormat, ...)
-#define otLogWarnApi(aFormat, ...)
-#define otLogNoteApi(aFormat, ...)
-#define otLogInfoApi(aFormat, ...)
-#define otLogDebgApi(aFormat, ...)
+#define otLogCritApi(...)
+#define otLogWarnApi(...)
+#define otLogNoteApi(...)
+#define otLogInfoApi(...)
+#define otLogDebgApi(...)
 #endif
 
 /**
@@ -263,8 +250,7 @@ extern "C" {
  *
  * This method generates a log with level critical for the MLE region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  *
  */
@@ -274,8 +260,7 @@ extern "C" {
  *
  * This method generates a log with level warning for the MLE region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -284,8 +269,7 @@ extern "C" {
  *
  * This method generates a log with level note for the MLE region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -294,8 +278,7 @@ extern "C" {
  *
  * This method generates a log with level info for the MLE region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -304,42 +287,35 @@ extern "C" {
  *
  * This method generates a log with level debug for the MLE region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 #if OPENTHREAD_CONFIG_LOG_MLE == 1
-#define otLogCritMeshCoP(aFormat, ...) \
-    otLogCrit(OT_LOG_REGION_MESH_COP, _OT_REGION_MESH_COP_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogWarnMeshCoP(aFormat, ...) \
-    otLogWarn(OT_LOG_REGION_MESH_COP, _OT_REGION_MESH_COP_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogNoteMeshCoP(aFormat, ...) \
-    otLogNote(OT_LOG_REGION_MESH_COP, _OT_REGION_MESH_COP_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogInfoMeshCoP(aFormat, ...) \
-    otLogInfo(OT_LOG_REGION_MESH_COP, _OT_REGION_MESH_COP_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogDebgMeshCoP(aFormat, ...) \
-    otLogDebg(OT_LOG_REGION_MESH_COP, _OT_REGION_MESH_COP_PREFIX aFormat, ##__VA_ARGS__)
+#define otLogCritMeshCoP(...) otLogCrit(OT_LOG_REGION_MESH_COP, _OT_REGION_MESH_COP_PREFIX __VA_ARGS__)
+#define otLogWarnMeshCoP(...) otLogWarn(OT_LOG_REGION_MESH_COP, _OT_REGION_MESH_COP_PREFIX __VA_ARGS__)
+#define otLogNoteMeshCoP(...) otLogNote(OT_LOG_REGION_MESH_COP, _OT_REGION_MESH_COP_PREFIX __VA_ARGS__)
+#define otLogInfoMeshCoP(...) otLogInfo(OT_LOG_REGION_MESH_COP, _OT_REGION_MESH_COP_PREFIX __VA_ARGS__)
+#define otLogDebgMeshCoP(...) otLogDebg(OT_LOG_REGION_MESH_COP, _OT_REGION_MESH_COP_PREFIX __VA_ARGS__)
 #else
-#define otLogCritMeshCoP(aFormat, ...)
-#define otLogWarnMeshCoP(aFormat, ...)
-#define otLogNoteMeshCoP(aFormat, ...)
-#define otLogInfoMeshCoP(aFormat, ...)
-#define otLogDebgMeshCoP(aFormat, ...)
+#define otLogCritMeshCoP(...)
+#define otLogWarnMeshCoP(...)
+#define otLogNoteMeshCoP(...)
+#define otLogInfoMeshCoP(...)
+#define otLogDebgMeshCoP(...)
 #endif
 
-#define otLogCritMbedTls(aFormat, ...) otLogCritMeshCoP(aFormat, ##__VA_ARGS__)
-#define otLogWarnMbedTls(aFormat, ...) otLogWarnMeshCoP(aFormat, ##__VA_ARGS__)
-#define otLogNoteMbedTls(aFormat, ...) otLogNoteMeshCoP(aFormat, ##__VA_ARGS__)
-#define otLogInfoMbedTls(aFormat, ...) otLogInfoMeshCoP(aFormat, ##__VA_ARGS__)
-#define otLogDebgMbedTls(aFormat, ...) otLogDebgMeshCoP(aFormat, ##__VA_ARGS__)
+#define otLogCritMbedTls(...) otLogCritMeshCoP(__VA_ARGS__)
+#define otLogWarnMbedTls(...) otLogWarnMeshCoP(__VA_ARGS__)
+#define otLogNoteMbedTls(...) otLogNoteMeshCoP(__VA_ARGS__)
+#define otLogInfoMbedTls(...) otLogInfoMeshCoP(__VA_ARGS__)
+#define otLogDebgMbedTls(...) otLogDebgMeshCoP(__VA_ARGS__)
 
 /**
  * @def otLogCritMle
  *
  * This method generates a log with level critical for the MLE region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -348,8 +324,7 @@ extern "C" {
  *
  * This method generates a log with level warning for the MLE region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -358,8 +333,7 @@ extern "C" {
  *
  * This method generates a log with level note for the MLE region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -368,8 +342,7 @@ extern "C" {
  *
  * This method generates a log with level info for the MLE region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -378,23 +351,22 @@ extern "C" {
  *
  * This method generates a log with level debug for the MLE region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  *
  */
 #if OPENTHREAD_CONFIG_LOG_MLE == 1
-#define otLogCritMle(aFormat, ...) otLogCrit(OT_LOG_REGION_MLE, _OT_REGION_MLE_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogWarnMle(aFormat, ...) otLogWarn(OT_LOG_REGION_MLE, _OT_REGION_MLE_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogNoteMle(aFormat, ...) otLogNote(OT_LOG_REGION_MLE, _OT_REGION_MLE_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogInfoMle(aFormat, ...) otLogInfo(OT_LOG_REGION_MLE, _OT_REGION_MLE_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogDebgMle(aFormat, ...) otLogDebg(OT_LOG_REGION_MLE, _OT_REGION_MLE_PREFIX aFormat, ##__VA_ARGS__)
+#define otLogCritMle(...) otLogCrit(OT_LOG_REGION_MLE, _OT_REGION_MLE_PREFIX __VA_ARGS__)
+#define otLogWarnMle(...) otLogWarn(OT_LOG_REGION_MLE, _OT_REGION_MLE_PREFIX __VA_ARGS__)
+#define otLogNoteMle(...) otLogNote(OT_LOG_REGION_MLE, _OT_REGION_MLE_PREFIX __VA_ARGS__)
+#define otLogInfoMle(...) otLogInfo(OT_LOG_REGION_MLE, _OT_REGION_MLE_PREFIX __VA_ARGS__)
+#define otLogDebgMle(...) otLogDebg(OT_LOG_REGION_MLE, _OT_REGION_MLE_PREFIX __VA_ARGS__)
 #else
-#define otLogCritMle(aFormat, ...)
-#define otLogWarnMle(aFormat, ...)
-#define otLogNoteMle(aFormat, ...)
-#define otLogInfoMle(aFormat, ...)
-#define otLogDebgMle(aFormat, ...)
+#define otLogCritMle(...)
+#define otLogWarnMle(...)
+#define otLogNoteMle(...)
+#define otLogInfoMle(...)
+#define otLogDebgMle(...)
 #endif
 
 /**
@@ -402,8 +374,7 @@ extern "C" {
  *
  * This method generates a log with level critical for the EID-to-RLOC mapping region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -412,8 +383,7 @@ extern "C" {
  *
  * This method generates a log with level warning for the EID-to-RLOC mapping region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -422,8 +392,7 @@ extern "C" {
  *
  * This method generates a log with level note for the EID-to-RLOC mapping region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -432,8 +401,7 @@ extern "C" {
  *
  * This method generates a log with level info for the EID-to-RLOC mapping region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -442,22 +410,79 @@ extern "C" {
  *
  * This method generates a log with level debug for the EID-to-RLOC mapping region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 #if OPENTHREAD_CONFIG_LOG_ARP == 1
-#define otLogCritArp(aFormat, ...) otLogCrit(OT_LOG_REGION_ARP, _OT_REGION_ARP_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogWarnArp(aFormat, ...) otLogWarn(OT_LOG_REGION_ARP, _OT_REGION_ARP_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogNoteArp(aFormat, ...) otLogNote(OT_LOG_REGION_ARP, _OT_REGION_ARP_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogInfoArp(aFormat, ...) otLogInfo(OT_LOG_REGION_ARP, _OT_REGION_ARP_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogDebgArp(aFormat, ...) otLogDebg(OT_LOG_REGION_ARP, _OT_REGION_ARP_PREFIX aFormat, ##__VA_ARGS__)
+#define otLogCritArp(...) otLogCrit(OT_LOG_REGION_ARP, _OT_REGION_ARP_PREFIX __VA_ARGS__)
+#define otLogWarnArp(...) otLogWarn(OT_LOG_REGION_ARP, _OT_REGION_ARP_PREFIX __VA_ARGS__)
+#define otLogNoteArp(...) otLogNote(OT_LOG_REGION_ARP, _OT_REGION_ARP_PREFIX __VA_ARGS__)
+#define otLogInfoArp(...) otLogInfo(OT_LOG_REGION_ARP, _OT_REGION_ARP_PREFIX __VA_ARGS__)
+#define otLogDebgArp(...) otLogDebg(OT_LOG_REGION_ARP, _OT_REGION_ARP_PREFIX __VA_ARGS__)
 #else
-#define otLogCritArp(aFormat, ...)
-#define otLogWarnArp(aFormat, ...)
-#define otLogNoteArp(aFormat, ...)
-#define otLogInfoArp(aFormat, ...)
-#define otLogDebgArp(aFormat, ...)
+#define otLogCritArp(...)
+#define otLogWarnArp(...)
+#define otLogNoteArp(...)
+#define otLogInfoArp(...)
+#define otLogDebgArp(...)
+#endif
+
+/**
+ * @def otLogCritBbr
+ *
+ * This method generates a log with level critical for the Backbone Router (BBR) region.
+ *
+ * @param[in]  ...  Arguments for the format specification.
+ *
+ */
+
+/**
+ * @def otLogWarnBbr
+ *
+ * This method generates a log with level warning for the Backbone Router (BBR) region.
+ *
+ * @param[in]  ...  Arguments for the format specification.
+ *
+ */
+
+/**
+ * @def otLogInfoBbr
+ *
+ * This method generates a log with level note for the Backbone Router (BBR) region.
+ *
+ * @param[in]  ...  Arguments for the format specification.
+ *
+ */
+
+/**
+ * @def otLogInfoBbr
+ *
+ * This method generates a log with level info for the Backbone Router (BBR) region.
+ *
+ * @param[in]  ...  Arguments for the format specification.
+ *
+ */
+
+/**
+ * @def otLogDebgBbr
+ *
+ * This method generates a log with level debug for the Backbone Router (BBR) region.
+ *
+ * @param[in]  ...  Arguments for the format specification.
+ *
+ */
+#if OPENTHREAD_CONFIG_LOG_BBR == 1
+#define otLogCritBbr(...) otLogCrit(OT_LOG_REGION_BBR, _OT_REGION_BBR_PREFIX __VA_ARGS__)
+#define otLogWarnBbr(...) otLogWarn(OT_LOG_REGION_BBR, _OT_REGION_BBR_PREFIX __VA_ARGS__)
+#define otLogNoteBbr(...) otLogNote(OT_LOG_REGION_BBR, _OT_REGION_BBR_PREFIX __VA_ARGS__)
+#define otLogInfoBbr(...) otLogInfo(OT_LOG_REGION_BBR, _OT_REGION_BBR_PREFIX __VA_ARGS__)
+#define otLogDebgBbr(...) otLogDebg(OT_LOG_REGION_BBR, _OT_REGION_BBR_PREFIX __VA_ARGS__)
+#else
+#define otLogCritBbr(...)
+#define otLogWarnBbr(...)
+#define otLogNoteBbr(...)
+#define otLogInfoBbr(...)
+#define otLogDebgBbr(...)
 #endif
 
 /**
@@ -465,8 +490,7 @@ extern "C" {
  *
  * This method generates a log with level critical for the Network Data region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -475,8 +499,7 @@ extern "C" {
  *
  * This method generates a log with level warning for the Network Data region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -485,8 +508,7 @@ extern "C" {
  *
  * This method generates a log with level note for the Network Data region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -495,8 +517,7 @@ extern "C" {
  *
  * This method generates a log with level info for the Network Data region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -505,27 +526,21 @@ extern "C" {
  *
  * This method generates a log with level debug for the Network Data region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 #if OPENTHREAD_CONFIG_LOG_NETDATA == 1
-#define otLogCritNetData(aFormat, ...) \
-    otLogCrit(OT_LOG_REGION_NET_DATA, _OT_REGION_NET_DATA_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogWarnNetData(aFormat, ...) \
-    otLogWarn(OT_LOG_REGION_NET_DATA, _OT_REGION_NET_DATA_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogNoteNetData(aFormat, ...) \
-    otLogNote(OT_LOG_REGION_NET_DATA, _OT_REGION_NET_DATA_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogInfoNetData(aFormat, ...) \
-    otLogInfo(OT_LOG_REGION_NET_DATA, _OT_REGION_NET_DATA_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogDebgNetData(aFormat, ...) \
-    otLogDebg(OT_LOG_REGION_NET_DATA, _OT_REGION_NET_DATA_PREFIX aFormat, ##__VA_ARGS__)
+#define otLogCritNetData(...) otLogCrit(OT_LOG_REGION_NET_DATA, _OT_REGION_NET_DATA_PREFIX __VA_ARGS__)
+#define otLogWarnNetData(...) otLogWarn(OT_LOG_REGION_NET_DATA, _OT_REGION_NET_DATA_PREFIX __VA_ARGS__)
+#define otLogNoteNetData(...) otLogNote(OT_LOG_REGION_NET_DATA, _OT_REGION_NET_DATA_PREFIX __VA_ARGS__)
+#define otLogInfoNetData(...) otLogInfo(OT_LOG_REGION_NET_DATA, _OT_REGION_NET_DATA_PREFIX __VA_ARGS__)
+#define otLogDebgNetData(...) otLogDebg(OT_LOG_REGION_NET_DATA, _OT_REGION_NET_DATA_PREFIX __VA_ARGS__)
 #else
-#define otLogCritNetData(aFormat, ...)
-#define otLogWarnNetData(aFormat, ...)
-#define otLogNoteNetData(aFormat, ...)
-#define otLogInfoNetData(aFormat, ...)
-#define otLogDebgNetData(aFormat, ...)
+#define otLogCritNetData(...)
+#define otLogWarnNetData(...)
+#define otLogNoteNetData(...)
+#define otLogInfoNetData(...)
+#define otLogDebgNetData(...)
 #endif
 
 /**
@@ -533,8 +548,7 @@ extern "C" {
  *
  * This method generates a log with level critical for the ICMPv6 region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -543,8 +557,7 @@ extern "C" {
  *
  * This method generates a log with level warning for the ICMPv6 region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -553,8 +566,7 @@ extern "C" {
  *
  * This method generates a log with level note for the ICMPv6 region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -563,8 +575,7 @@ extern "C" {
  *
  * This method generates a log with level info for the ICMPv6 region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -573,22 +584,21 @@ extern "C" {
  *
  * This method generates a log with level debug for the ICMPv6 region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 #if OPENTHREAD_CONFIG_LOG_ICMP == 1
-#define otLogCritIcmp(aFormat, ...) otLogCrit(OT_LOG_REGION_ICMP, _OT_REGION_ICMP_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogWarnIcmp(aFormat, ...) otLogWarn(OT_LOG_REGION_ICMP, _OT_REGION_ICMP_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogNoteIcmp(aFormat, ...) otLogNote(OT_LOG_REGION_ICMP, _OT_REGION_ICMP_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogInfoIcmp(aFormat, ...) otLogInfo(OT_LOG_REGION_ICMP, _OT_REGION_ICMP_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogDebgIcmp(aFormat, ...) otLogDebg(OT_LOG_REGION_ICMP, _OT_REGION_ICMP_PREFIX aFormat, ##__VA_ARGS__)
+#define otLogCritIcmp(...) otLogCrit(OT_LOG_REGION_ICMP, _OT_REGION_ICMP_PREFIX __VA_ARGS__)
+#define otLogWarnIcmp(...) otLogWarn(OT_LOG_REGION_ICMP, _OT_REGION_ICMP_PREFIX __VA_ARGS__)
+#define otLogNoteIcmp(...) otLogNote(OT_LOG_REGION_ICMP, _OT_REGION_ICMP_PREFIX __VA_ARGS__)
+#define otLogInfoIcmp(...) otLogInfo(OT_LOG_REGION_ICMP, _OT_REGION_ICMP_PREFIX __VA_ARGS__)
+#define otLogDebgIcmp(...) otLogDebg(OT_LOG_REGION_ICMP, _OT_REGION_ICMP_PREFIX __VA_ARGS__)
 #else
-#define otLogCritIcmp(aFormat, ...)
-#define otLogWarnIcmp(aFormat, ...)
-#define otLogNoteIcmp(aFormat, ...)
-#define otLogInfoIcmp(aFormat, ...)
-#define otLogDebgIcmp(aFormat, ...)
+#define otLogCritIcmp(...)
+#define otLogWarnIcmp(...)
+#define otLogNoteIcmp(...)
+#define otLogInfoIcmp(...)
+#define otLogDebgIcmp(...)
 #endif
 
 /**
@@ -596,8 +606,7 @@ extern "C" {
  *
  * This method generates a log with level critical for the IPv6 region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -606,8 +615,7 @@ extern "C" {
  *
  * This method generates a log with level warning for the IPv6 region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -616,8 +624,7 @@ extern "C" {
  *
  * This method generates a log with level note for the IPv6 region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -626,8 +633,7 @@ extern "C" {
  *
  * This method generates a log with level info for the IPv6 region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -636,22 +642,21 @@ extern "C" {
  *
  * This method generates a log with level debug for the IPv6 region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 #if OPENTHREAD_CONFIG_LOG_IP6 == 1
-#define otLogCritIp6(aFormat, ...) otLogCrit(OT_LOG_REGION_IP6, _OT_REGION_IP6_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogWarnIp6(aFormat, ...) otLogWarn(OT_LOG_REGION_IP6, _OT_REGION_IP6_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogNoteIp6(aFormat, ...) otLogNote(OT_LOG_REGION_IP6, _OT_REGION_IP6_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogInfoIp6(aFormat, ...) otLogInfo(OT_LOG_REGION_IP6, _OT_REGION_IP6_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogDebgIp6(aFormat, ...) otLogDebg(OT_LOG_REGION_IP6, _OT_REGION_IP6_PREFIX aFormat, ##__VA_ARGS__)
+#define otLogCritIp6(...) otLogCrit(OT_LOG_REGION_IP6, _OT_REGION_IP6_PREFIX __VA_ARGS__)
+#define otLogWarnIp6(...) otLogWarn(OT_LOG_REGION_IP6, _OT_REGION_IP6_PREFIX __VA_ARGS__)
+#define otLogNoteIp6(...) otLogNote(OT_LOG_REGION_IP6, _OT_REGION_IP6_PREFIX __VA_ARGS__)
+#define otLogInfoIp6(...) otLogInfo(OT_LOG_REGION_IP6, _OT_REGION_IP6_PREFIX __VA_ARGS__)
+#define otLogDebgIp6(...) otLogDebg(OT_LOG_REGION_IP6, _OT_REGION_IP6_PREFIX __VA_ARGS__)
 #else
-#define otLogCritIp6(aFormat, ...)
-#define otLogWarnIp6(aFormat, ...)
-#define otLogNoteIp6(aFormat, ...)
-#define otLogInfoIp6(aFormat, ...)
-#define otLogDebgIp6(aFormat, ...)
+#define otLogCritIp6(...)
+#define otLogWarnIp6(...)
+#define otLogNoteIp6(...)
+#define otLogInfoIp6(...)
+#define otLogDebgIp6(...)
 #endif
 
 /**
@@ -659,8 +664,7 @@ extern "C" {
  *
  * This method generates a log with level critical for the MAC region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -669,8 +673,7 @@ extern "C" {
  *
  * This method generates a log with level warning for the MAC region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -679,8 +682,7 @@ extern "C" {
  *
  * This method generates a log with level note for the MAC region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -689,8 +691,7 @@ extern "C" {
  *
  * This method generates a log with level info for the MAC region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -699,8 +700,7 @@ extern "C" {
  *
  * This method generates a log with level debug for the MAC region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -709,34 +709,34 @@ extern "C" {
  *
  * This method generates a log with a given log level for the MAC region.
  *
- * @param[in]  aLogLevel    A log level.
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  aLogLevel  A log level.
+ * @param[in]  aFormat    A pointer to the format string.
+ * @param[in]  ...        Arguments for the format specification.
  *
  */
 #if OPENTHREAD_CONFIG_LOG_MAC == 1
-#define otLogCritMac(aFormat, ...) otLogCrit(OT_LOG_REGION_MAC, _OT_REGION_MAC_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogWarnMac(aFormat, ...) otLogWarn(OT_LOG_REGION_MAC, _OT_REGION_MAC_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogNoteMac(aFormat, ...) otLogNote(OT_LOG_REGION_MAC, _OT_REGION_MAC_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogInfoMac(aFormat, ...) otLogInfo(OT_LOG_REGION_MAC, _OT_REGION_MAC_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogDebgMac(aFormat, ...) otLogDebg(OT_LOG_REGION_MAC, _OT_REGION_MAC_PREFIX aFormat, ##__VA_ARGS__)
+#define otLogCritMac(...) otLogCrit(OT_LOG_REGION_MAC, _OT_REGION_MAC_PREFIX __VA_ARGS__)
+#define otLogWarnMac(...) otLogWarn(OT_LOG_REGION_MAC, _OT_REGION_MAC_PREFIX __VA_ARGS__)
+#define otLogNoteMac(...) otLogNote(OT_LOG_REGION_MAC, _OT_REGION_MAC_PREFIX __VA_ARGS__)
+#define otLogInfoMac(...) otLogInfo(OT_LOG_REGION_MAC, _OT_REGION_MAC_PREFIX __VA_ARGS__)
+#define otLogDebgMac(...) otLogDebg(OT_LOG_REGION_MAC, _OT_REGION_MAC_PREFIX __VA_ARGS__)
 #define otLogMac(aLogLevel, aFormat, ...)                                                     \
     do                                                                                        \
     {                                                                                         \
         if (otLoggingGetLevel() >= aLogLevel)                                                 \
         {                                                                                     \
             _otLogFormatter(aLogLevel, OT_LOG_REGION_MAC, "%s" _OT_REGION_MAC_PREFIX aFormat, \
-                            otLogLevelToPrefixString(aLogLevel), ##__VA_ARGS__);              \
+                            otLogLevelToPrefixString(aLogLevel), __VA_ARGS__);                \
         }                                                                                     \
     } while (false)
 
 #else
-#define otLogCritMac(aFormat, ...)
-#define otLogWarnMac(aFormat, ...)
-#define otLogNoteMac(aFormat, ...)
-#define otLogInfoMac(aFormat, ...)
-#define otLogDebgMac(aFormat, ...)
-#define otLogMac(aLogLevel, aFormat, ...)
+#define otLogCritMac(...)
+#define otLogWarnMac(...)
+#define otLogNoteMac(...)
+#define otLogInfoMac(...)
+#define otLogDebgMac(...)
+#define otLogMac(aLogLevel, ...)
 #endif
 
 /**
@@ -744,8 +744,7 @@ extern "C" {
  *
  * This method generates a log with level critical for the Core region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -754,8 +753,7 @@ extern "C" {
  *
  * This method generates a log with level warning for the Core region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -764,8 +762,7 @@ extern "C" {
  *
  * This method generates a log with level note for the Core region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -774,8 +771,7 @@ extern "C" {
  *
  * This method generates a log with level info for the Core region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -784,21 +780,20 @@ extern "C" {
  *
  * This method generates a log with level debug for the Core region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 #if OPENTHREAD_CONFIG_LOG_CORE == 1
-#define otLogCritCore(aFormat, ...) otLogCrit(OT_LOG_REGION_CORE, _OT_REGION_CORE_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogWarnCore(aFormat, ...) otLogWarn(OT_LOG_REGION_CORE, _OT_REGION_CORE_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogNoteCore(aFormat, ...) otLogNote(OT_LOG_REGION_CORE, _OT_REGION_CORE_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogInfoCore(aFormat, ...) otLogInfo(OT_LOG_REGION_CORE, _OT_REGION_CORE_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogDebgCore(aFormat, ...) otLogDebg(OT_LOG_REGION_CORE, _OT_REGION_CORE_PREFIX aFormat, ##__VA_ARGS__)
+#define otLogCritCore(...) otLogCrit(OT_LOG_REGION_CORE, _OT_REGION_CORE_PREFIX __VA_ARGS__)
+#define otLogWarnCore(...) otLogWarn(OT_LOG_REGION_CORE, _OT_REGION_CORE_PREFIX __VA_ARGS__)
+#define otLogNoteCore(...) otLogNote(OT_LOG_REGION_CORE, _OT_REGION_CORE_PREFIX __VA_ARGS__)
+#define otLogInfoCore(...) otLogInfo(OT_LOG_REGION_CORE, _OT_REGION_CORE_PREFIX __VA_ARGS__)
+#define otLogDebgCore(...) otLogDebg(OT_LOG_REGION_CORE, _OT_REGION_CORE_PREFIX __VA_ARGS__)
 #else
-#define otLogCritCore(aFormat, ...)
-#define otLogWarnCore(aFormat, ...)
-#define otLogInfoCore(aFormat, ...)
-#define otLogDebgCore(aFormat, ...)
+#define otLogCritCore(...)
+#define otLogWarnCore(...)
+#define otLogInfoCore(...)
+#define otLogDebgCore(...)
 #endif
 
 /**
@@ -806,8 +801,7 @@ extern "C" {
  *
  * This method generates a log with level critical for the memory region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -816,8 +810,7 @@ extern "C" {
  *
  * This method generates a log with level warning for the memory region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -826,8 +819,7 @@ extern "C" {
  *
  * This method generates a log with level note for the memory region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -836,8 +828,7 @@ extern "C" {
  *
  * This method generates a log with level info for the memory region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -846,22 +837,21 @@ extern "C" {
  *
  * This method generates a log with level debug for the memory region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 #if OPENTHREAD_CONFIG_LOG_MEM == 1
-#define otLogCritMem(aFormat, ...) otLogCrit(OT_LOG_REGION_MEM, _OT_REGION_MEM_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogWarnMem(aFormat, ...) otLogWarn(OT_LOG_REGION_MEM, _OT_REGION_MEM_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogNoteMem(aFormat, ...) otLogNote(OT_LOG_REGION_MEM, _OT_REGION_MEM_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogInfoMem(aFormat, ...) otLogInfo(OT_LOG_REGION_MEM, _OT_REGION_MEM_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogDebgMem(aFormat, ...) otLogDebg(OT_LOG_REGION_MEM, _OT_REGION_MEM_PREFIX aFormat, ##__VA_ARGS__)
+#define otLogCritMem(...) otLogCrit(OT_LOG_REGION_MEM, _OT_REGION_MEM_PREFIX __VA_ARGS__)
+#define otLogWarnMem(...) otLogWarn(OT_LOG_REGION_MEM, _OT_REGION_MEM_PREFIX __VA_ARGS__)
+#define otLogNoteMem(...) otLogNote(OT_LOG_REGION_MEM, _OT_REGION_MEM_PREFIX __VA_ARGS__)
+#define otLogInfoMem(...) otLogInfo(OT_LOG_REGION_MEM, _OT_REGION_MEM_PREFIX __VA_ARGS__)
+#define otLogDebgMem(...) otLogDebg(OT_LOG_REGION_MEM, _OT_REGION_MEM_PREFIX __VA_ARGS__)
 #else
-#define otLogCritMem(aFormat, ...)
-#define otLogWarnMem(aFormat, ...)
-#define otLogNoteMem(aFormat, ...)
-#define otLogInfoMem(aFormat, ...)
-#define otLogDebgMem(aFormat, ...)
+#define otLogCritMem(...)
+#define otLogWarnMem(...)
+#define otLogNoteMem(...)
+#define otLogInfoMem(...)
+#define otLogDebgMem(...)
 #endif
 
 /**
@@ -869,8 +859,7 @@ extern "C" {
  *
  * This method generates a log with level critical for the Util region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -879,8 +868,7 @@ extern "C" {
  *
  * This method generates a log with level warning for the Util region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -889,8 +877,7 @@ extern "C" {
  *
  * This method generates a log with level note for the Util region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -899,8 +886,7 @@ extern "C" {
  *
  * This method generates a log with level info for the Util region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -909,22 +895,21 @@ extern "C" {
  *
  * This method generates a log with level debug for the Util region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 #if OPENTHREAD_CONFIG_LOG_UTIL == 1
-#define otLogCritUtil(aFormat, ...) otLogCrit(OT_LOG_REGION_UTIL, _OT_REGION_UTIL_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogWarnUtil(aFormat, ...) otLogWarn(OT_LOG_REGION_UTIL, _OT_REGION_UTIL_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogNoteUtil(aFormat, ...) otLogNote(OT_LOG_REGION_UTIL, _OT_REGION_UTIL_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogInfoUtil(aFormat, ...) otLogInfo(OT_LOG_REGION_UTIL, _OT_REGION_UTIL_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogDebgUtil(aFormat, ...) otLogDebg(OT_LOG_REGION_UTIL, _OT_REGION_UTIL_PREFIX aFormat, ##__VA_ARGS__)
+#define otLogCritUtil(...) otLogCrit(OT_LOG_REGION_UTIL, _OT_REGION_UTIL_PREFIX __VA_ARGS__)
+#define otLogWarnUtil(...) otLogWarn(OT_LOG_REGION_UTIL, _OT_REGION_UTIL_PREFIX __VA_ARGS__)
+#define otLogNoteUtil(...) otLogNote(OT_LOG_REGION_UTIL, _OT_REGION_UTIL_PREFIX __VA_ARGS__)
+#define otLogInfoUtil(...) otLogInfo(OT_LOG_REGION_UTIL, _OT_REGION_UTIL_PREFIX __VA_ARGS__)
+#define otLogDebgUtil(...) otLogDebg(OT_LOG_REGION_UTIL, _OT_REGION_UTIL_PREFIX __VA_ARGS__)
 #else
-#define otLogCritUtil(aFormat, ...)
-#define otLogWarnUtil(aFormat, ...)
-#define otLogNoteUtil(aFormat, ...)
-#define otLogInfoUtil(aFormat, ...)
-#define otLogDebgUtil(aFormat, ...)
+#define otLogCritUtil(...)
+#define otLogWarnUtil(...)
+#define otLogNoteUtil(...)
+#define otLogInfoUtil(...)
+#define otLogDebgUtil(...)
 #endif
 
 /**
@@ -932,8 +917,7 @@ extern "C" {
  *
  * This method generates a log with level critical for the NETDIAG region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -942,8 +926,7 @@ extern "C" {
  *
  * This method generates a log with level warning for the NETDIAG region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -952,8 +935,7 @@ extern "C" {
  *
  * This method generates a log with level note for the NETDIAG region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -962,8 +944,7 @@ extern "C" {
  *
  * This method generates a log with level info for the NETDIAG region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -972,27 +953,21 @@ extern "C" {
  *
  * This method generates a log with level debug for the NETDIAG region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 #if OPENTHREAD_CONFIG_LOG_NETDIAG == 1
-#define otLogCritNetDiag(aFormat, ...) \
-    otLogCrit(OT_LOG_REGION_NET_DIAG, _OT_REGION_NET_DIAG_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogWarnNetDiag(aFormat, ...) \
-    otLogWarn(OT_LOG_REGION_NET_DIAG, _OT_REGION_NET_DIAG_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogNoteNetDiag(aFormat, ...) \
-    otLogNote(OT_LOG_REGION_NET_DIAG, _OT_REGION_NET_DIAG_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogInfoNetDiag(aFormat, ...) \
-    otLogInfo(OT_LOG_REGION_NET_DIAG, _OT_REGION_NET_DIAG_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogDebgNetDiag(aFormat, ...) \
-    otLogDebg(OT_LOG_REGION_NET_DIAG, _OT_REGION_NET_DIAG_PREFIX aFormat, ##__VA_ARGS__)
+#define otLogCritNetDiag(...) otLogCrit(OT_LOG_REGION_NET_DIAG, _OT_REGION_NET_DIAG_PREFIX __VA_ARGS__)
+#define otLogWarnNetDiag(...) otLogWarn(OT_LOG_REGION_NET_DIAG, _OT_REGION_NET_DIAG_PREFIX __VA_ARGS__)
+#define otLogNoteNetDiag(...) otLogNote(OT_LOG_REGION_NET_DIAG, _OT_REGION_NET_DIAG_PREFIX __VA_ARGS__)
+#define otLogInfoNetDiag(...) otLogInfo(OT_LOG_REGION_NET_DIAG, _OT_REGION_NET_DIAG_PREFIX __VA_ARGS__)
+#define otLogDebgNetDiag(...) otLogDebg(OT_LOG_REGION_NET_DIAG, _OT_REGION_NET_DIAG_PREFIX __VA_ARGS__)
 #else
-#define otLogCritNetDiag(aFormat, ...)
-#define otLogWarnNetDiag(aFormat, ...)
-#define otLogNoteNetDiag(aFormat, ...)
-#define otLogInfoNetDiag(aFormat, ...)
-#define otLogDebgNetDiag(aFormat, ...)
+#define otLogCritNetDiag(...)
+#define otLogWarnNetDiag(...)
+#define otLogNoteNetDiag(...)
+#define otLogInfoNetDiag(...)
+#define otLogDebgNetDiag(...)
 #endif
 
 /**
@@ -1000,16 +975,14 @@ extern "C" {
  *
  * This method generates a log with level none for the certification test.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  *
  */
 #if OPENTHREAD_CONFIG_REFERENCE_DEVICE_ENABLE
-#define otLogCertMeshCoP(aFormat, ...) \
-    _otLogFormatter(OT_LOG_LEVEL_NONE, OT_LOG_REGION_MESH_COP, aFormat, ##__VA_ARGS__)
+#define otLogCertMeshCoP(...) _otLogFormatter(OT_LOG_LEVEL_NONE, OT_LOG_REGION_MESH_COP, __VA_ARGS__, NULL)
 #else
-#define otLogCertMeshCoP(aFormat, ...)
+#define otLogCertMeshCoP(...)
 #endif
 
 /**
@@ -1017,8 +990,7 @@ extern "C" {
  *
  * This method generates a log with level critical for the CLI region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -1027,8 +999,7 @@ extern "C" {
  *
  * This method generates a log with level warning for the CLI region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -1037,8 +1008,7 @@ extern "C" {
  *
  * This method generates a log with level note for the CLI region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -1047,8 +1017,7 @@ extern "C" {
  *
  * This method generates a log with level info for the CLI region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -1057,23 +1026,22 @@ extern "C" {
  *
  * This method generates a log with level debug for the CLI region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 #if OPENTHREAD_CONFIG_LOG_CLI == 1
 
-#define otLogCritCli(aFormat, ...) otLogCrit(OT_LOG_REGION_CLI, _OT_REGION_CLI_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogWarnCli(aFormat, ...) otLogWarn(OT_LOG_REGION_CLI, _OT_REGION_CLI_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogNoteCli(aFormat, ...) otLogNote(OT_LOG_REGION_CLI, _OT_REGION_CLI_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogInfoCli(aFormat, ...) otLogInfo(OT_LOG_REGION_CLI, _OT_REGION_CLI_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogDebgCli(aFormat, ...) otLogDebg(OT_LOG_REGION_CLI, _OT_REGION_CLI_PREFIX aFormat, ##__VA_ARGS__)
+#define otLogCritCli(...) otLogCrit(OT_LOG_REGION_CLI, _OT_REGION_CLI_PREFIX __VA_ARGS__)
+#define otLogWarnCli(...) otLogWarn(OT_LOG_REGION_CLI, _OT_REGION_CLI_PREFIX __VA_ARGS__)
+#define otLogNoteCli(...) otLogNote(OT_LOG_REGION_CLI, _OT_REGION_CLI_PREFIX __VA_ARGS__)
+#define otLogInfoCli(...) otLogInfo(OT_LOG_REGION_CLI, _OT_REGION_CLI_PREFIX __VA_ARGS__)
+#define otLogDebgCli(...) otLogDebg(OT_LOG_REGION_CLI, _OT_REGION_CLI_PREFIX __VA_ARGS__)
 #else
-#define otLogCritCli(aFormat, ...)
-#define otLogWarnCli(aFormat, ...)
-#define otLogNoteCli(aFormat, ...)
-#define otLogInfoCli(aFormat, ...)
-#define otLogDebgCli(aFormat, ...)
+#define otLogCritCli(...)
+#define otLogWarnCli(...)
+#define otLogNoteCli(...)
+#define otLogInfoCli(...)
+#define otLogDebgCli(...)
 #endif
 
 /**
@@ -1081,8 +1049,7 @@ extern "C" {
  *
  * This method generates a log with level critical for the CoAP region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -1091,8 +1058,7 @@ extern "C" {
  *
  * This method generates a log with level warning for the CoAP region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -1101,8 +1067,7 @@ extern "C" {
  *
  * This method generates a log with level note for the CoAP region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -1111,8 +1076,7 @@ extern "C" {
  *
  * This method generates a log with level info for the CoAP region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 
@@ -1121,22 +1085,21 @@ extern "C" {
  *
  * This method generates a log with level debug for the CoAP region.
  *
- * @param[in]  aFormat      A pointer to the format string.
- * @param[in]  ...          Arguments for the format specification.
+ * @param[in]  ...  Arguments for the format specification.
  *
  */
 #if OPENTHREAD_CONFIG_LOG_COAP == 1
-#define otLogCritCoap(aFormat, ...) otLogCrit(OT_LOG_REGION_COAP, _OT_REGION_COAP_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogWarnCoap(aFormat, ...) otLogWarn(OT_LOG_REGION_COAP, _OT_REGION_COAP_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogNoteCoap(aFormat, ...) otLogNote(OT_LOG_REGION_COAP, _OT_REGION_COAP_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogInfoCoap(aFormat, ...) otLogInfo(OT_LOG_REGION_COAP, _OT_REGION_COAP_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogDebgCoap(aFormat, ...) otLogDebg(OT_LOG_REGION_COAP, _OT_REGION_COAP_PREFIX aFormat, ##__VA_ARGS__)
+#define otLogCritCoap(...) otLogCrit(OT_LOG_REGION_COAP, _OT_REGION_COAP_PREFIX __VA_ARGS__)
+#define otLogWarnCoap(...) otLogWarn(OT_LOG_REGION_COAP, _OT_REGION_COAP_PREFIX __VA_ARGS__)
+#define otLogNoteCoap(...) otLogNote(OT_LOG_REGION_COAP, _OT_REGION_COAP_PREFIX __VA_ARGS__)
+#define otLogInfoCoap(...) otLogInfo(OT_LOG_REGION_COAP, _OT_REGION_COAP_PREFIX __VA_ARGS__)
+#define otLogDebgCoap(...) otLogDebg(OT_LOG_REGION_COAP, _OT_REGION_COAP_PREFIX __VA_ARGS__)
 #else
-#define otLogCritCoap(aFormat, ...)
-#define otLogWarnCoap(aFormat, ...)
-#define otLogNoteCoap(aFormat, ...)
-#define otLogInfoCoap(aFormat, ...)
-#define otLogDebgCoap(aFormat, ...)
+#define otLogCritCoap(...)
+#define otLogWarnCoap(...)
+#define otLogNoteCoap(...)
+#define otLogInfoCoap(...)
+#define otLogDebgCoap(...)
 #endif
 
 #if OPENTHREAD_CONFIG_LOG_MQTTSN == 1
@@ -1162,7 +1125,6 @@ extern "C" {
  *
  * This method generates a log with level critical for the Platform region.
  *
- * @param[in]  aFormat   A pointer to the format string.
  * @param[in]  ...       Arguments for the format specification.
  *
  */
@@ -1172,7 +1134,6 @@ extern "C" {
  *
  * This method generates a log with level warning for the Platform region.
  *
- * @param[in]  aFormat   A pointer to the format string.
  * @param[in]  ...       Arguments for the format specification.
  *
  */
@@ -1182,7 +1143,6 @@ extern "C" {
  *
  * This method generates a log with level note for the Platform region.
  *
- * @param[in]  aFormat   A pointer to the format string.
  * @param[in]  ...       Arguments for the format specification.
  *
  */
@@ -1192,7 +1152,6 @@ extern "C" {
  *
  * This method generates a log with level info for the Platform region.
  *
- * @param[in]  aFormat   A pointer to the format string.
  * @param[in]  ...       Arguments for the format specification.
  *
  */
@@ -1202,22 +1161,21 @@ extern "C" {
  *
  * This method generates a log with level debug for the Platform region.
  *
- * @param[in]  aFormat   A pointer to the format string.
  * @param[in]  ...       Arguments for the format specification.
  *
  */
 #if OPENTHREAD_CONFIG_LOG_PLATFORM == 1
-#define otLogCritPlat(aFormat, ...) otLogCrit(OT_LOG_REGION_PLATFORM, _OT_REGION_PLATFORM_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogWarnPlat(aFormat, ...) otLogWarn(OT_LOG_REGION_PLATFORM, _OT_REGION_PLATFORM_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogNotePlat(aFormat, ...) otLogNote(OT_LOG_REGION_PLATFORM, _OT_REGION_PLATFORM_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogInfoPlat(aFormat, ...) otLogInfo(OT_LOG_REGION_PLATFORM, _OT_REGION_PLATFORM_PREFIX aFormat, ##__VA_ARGS__)
-#define otLogDebgPlat(aFormat, ...) otLogDebg(OT_LOG_REGION_PLATFORM, _OT_REGION_PLATFORM_PREFIX aFormat, ##__VA_ARGS__)
+#define otLogCritPlat(...) otLogCrit(OT_LOG_REGION_PLATFORM, _OT_REGION_PLATFORM_PREFIX __VA_ARGS__)
+#define otLogWarnPlat(...) otLogWarn(OT_LOG_REGION_PLATFORM, _OT_REGION_PLATFORM_PREFIX __VA_ARGS__)
+#define otLogNotePlat(...) otLogNote(OT_LOG_REGION_PLATFORM, _OT_REGION_PLATFORM_PREFIX __VA_ARGS__)
+#define otLogInfoPlat(...) otLogInfo(OT_LOG_REGION_PLATFORM, _OT_REGION_PLATFORM_PREFIX __VA_ARGS__)
+#define otLogDebgPlat(...) otLogDebg(OT_LOG_REGION_PLATFORM, _OT_REGION_PLATFORM_PREFIX __VA_ARGS__)
 #else
-#define otLogCritPlat(aFormat, ...)
-#define otLogWarnPlat(aFormat, ...)
-#define otLogNotePlat(aFormat, ...)
-#define otLogInfoPlat(aFormat, ...)
-#define otLogDebgPlat(aFormat, ...)
+#define otLogCritPlat(...)
+#define otLogWarnPlat(...)
+#define otLogNotePlat(...)
+#define otLogInfoPlat(...)
+#define otLogDebgPlat(...)
 #endif
 
 /**
@@ -1268,7 +1226,7 @@ extern "C" {
 #if OPENTHREAD_CONFIG_LOG_LEVEL >= OT_LOG_LEVEL_NOTE
 #define otDumpNote(aRegion, aId, aBuf, aLength) otDump(OT_LOG_LEVEL_NOTE, aRegion, aId, aBuf, aLength)
 #else
-#define otDumpInfo(aRegion, aId, aBuf, aLength)
+#define otDumpNote(aRegion, aId, aBuf, aLength)
 #endif
 
 /**
@@ -1502,6 +1460,74 @@ extern "C" {
 #define otDumpNoteArp(aId, aBuf, aLength)
 #define otDumpInfoArp(aId, aBuf, aLength)
 #define otDumpDebgArp(aId, aBuf, aLength)
+#endif
+
+/**
+ * @def otDumpCritBbr
+ *
+ * This method generates a memory dump with log level critical and region Backbone Router (BBR).
+ *
+ * @param[in]  aId          A pointer to a NULL-terminated string that is printed before the bytes.
+ * @param[in]  aBuf         A pointer to the buffer.
+ * @param[in]  aLength      Number of bytes to print.
+ *
+ */
+
+/**
+ * @def otDumpWarnBbr
+ *
+ * This method generates a memory dump with log level warning and region Backbone Router (BBR).
+ *
+ * @param[in]  aId          A pointer to a NULL-terminated string that is printed before the bytes.
+ * @param[in]  aBuf         A pointer to the buffer.
+ * @param[in]  aLength      Number of bytes to print.
+ *
+ */
+
+/**
+ * @def otDumpNoteBbr
+ *
+ * This method generates a memory dump with log level note and region Backbone Router (BBR).
+ *
+ * @param[in]  aId          A pointer to a NULL-terminated string that is printed before the bytes.
+ * @param[in]  aBuf         A pointer to the buffer.
+ * @param[in]  aLength      Number of bytes to print.
+ *
+ */
+
+/**
+ * @def otDumpInfoBbr
+ *
+ * This method generates a memory dump with log level info and region Backbone Router (BBR).
+ *
+ * @param[in]  aId          A pointer to a NULL-terminated string that is printed before the bytes.
+ * @param[in]  aBuf         A pointer to the buffer.
+ * @param[in]  aLength      Number of bytes to print.
+ *
+ */
+
+/**
+ * @def otDumpDebgBbr
+ *
+ * This method generates a memory dump with log level debug and region Backbone Router (BBR).
+ *
+ * @param[in]  aId          A pointer to a NULL-terminated string that is printed before the bytes.
+ * @param[in]  aBuf         A pointer to the buffer.
+ * @param[in]  aLength      Number of bytes to print.
+ *
+ */
+#if OPENTHREAD_CONFIG_LOG_BBR == 1
+#define otDumpCritBbr(aId, aBuf, aLength) otDumpCrit(OT_LOG_REGION_BBR, aId, aBuf, aLength)
+#define otDumpWarnBbr(aId, aBuf, aLength) otDumpWarn(OT_LOG_REGION_BBR, aId, aBuf, aLength)
+#define otDumpNoteBbr(aId, aBuf, aLength) otDumpNote(OT_LOG_REGION_BBR, aId, aBuf, aLength)
+#define otDumpInfoBbr(aId, aBuf, aLength) otDumpInfo(OT_LOG_REGION_BBR, aId, aBuf, aLength)
+#define otDumpDebgBbr(aId, aBuf, aLength) otDumpDebg(OT_LOG_REGION_BBR, aId, aBuf, aLength)
+#else
+#define otDumpCritBbr(aId, aBuf, aLength)
+#define otDumpWarnBbr(aId, aBuf, aLength)
+#define otDumpNoteBbr(aId, aBuf, aLength)
+#define otDumpInfoBbr(aId, aBuf, aLength)
+#define otDumpDebgBbr(aId, aBuf, aLength)
 #endif
 
 /**
@@ -1910,23 +1936,23 @@ const char *otLogLevelToPrefixString(otLogLevel aLogLevel);
  * Local/private macro to format the log message
  */
 #define _otLogFormatter(aLogLevel, aRegion, aFormat, ...) \
-    _otDynamicLog(aLogLevel, aRegion, aFormat OPENTHREAD_CONFIG_LOG_SUFFIX, ##__VA_ARGS__)
+    _otDynamicLog(aLogLevel, aRegion, aFormat OPENTHREAD_CONFIG_LOG_SUFFIX, __VA_ARGS__)
 
 #if OPENTHREAD_CONFIG_LOG_LEVEL_DYNAMIC_ENABLE == 1
 
 /**
  * Local/private macro to dynamically filter log level.
  */
-#define _otDynamicLog(aLogLevel, aRegion, aFormat, ...)             \
-    do                                                              \
-    {                                                               \
-        if (otLoggingGetLevel() >= aLogLevel)                       \
-            _otPlatLog(aLogLevel, aRegion, aFormat, ##__VA_ARGS__); \
+#define _otDynamicLog(aLogLevel, aRegion, ...)           \
+    do                                                   \
+    {                                                    \
+        if (otLoggingGetLevel() >= aLogLevel)            \
+            _otPlatLog(aLogLevel, aRegion, __VA_ARGS__); \
     } while (false)
 
 #else // OPENTHREAD_CONFIG_LOG_LEVEL_DYNAMIC_ENABLE
 
-#define _otDynamicLog(aLogLevel, aRegion, aFormat, ...) _otPlatLog(aLogLevel, aRegion, aFormat, ##__VA_ARGS__)
+#define _otDynamicLog(aLogLevel, aRegion, ...) _otPlatLog(aLogLevel, aRegion, __VA_ARGS__)
 
 #endif // OPENTHREAD_CONFIG_LOG_LEVEL_DYNAMIC_ENABLE
 
@@ -1935,8 +1961,7 @@ const char *otLogLevelToPrefixString(otLogLevel aLogLevel);
  * function/macro to be used for logging in OpenThread. By default it is set to `otPlatLog()`.
  *
  */
-#define _otPlatLog(aLogLevel, aRegion, aFormat, ...) \
-    OPENTHREAD_CONFIG_PLAT_LOG_FUNCTION(aLogLevel, aRegion, aFormat, ##__VA_ARGS__)
+#define _otPlatLog(aLogLevel, aRegion, ...) OPENTHREAD_CONFIG_PLAT_LOG_FUNCTION(aLogLevel, aRegion, __VA_ARGS__)
 
 #ifdef __cplusplus
 }
