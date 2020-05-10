@@ -44,13 +44,14 @@ DIST_SUBDIRS                            = \
     paho                                  \
     $(NULL)
 
-SUBDIRS =
+SUBDIRS =                               = \
+    paho                                  \
+    $(NULL)
 
 if OPENTHREAD_PLATFORM_EFR32MG12
 SUBDIRS                                += \
     silabs                                \
     jlink                                 \
-    paho                                  \
     $(NULL)
 endif
 
@@ -65,7 +66,6 @@ if OPENTHREAD_PLATFORM_EFR32MG21
 SUBDIRS                                += \
     silabs                                \
     jlink                                 \
-    paho                                  \
     $(NULL)
 endif
 
@@ -84,7 +84,6 @@ endif
 if OPENTHREAD_PLATFORM_NRF52833
 SUBDIRS                                += \
     NordicSemiconductor                   \
-    paho                                  \
     $(NULL)
 endif
 
@@ -97,20 +96,17 @@ endif
 if OPENTHREAD_PLATFORM_NRF52840
 SUBDIRS                                += \
     NordicSemiconductor                   \
-    paho                                  \
     $(NULL)
 endif
 
 if OPENTHREAD_EXAMPLES_NRF52840
 SUBDIRS                                += \
     jlink                                 \
-    paho                                  \
     $(NULL)
 endif
 
 if OPENTHREAD_EXAMPLES_CC1352
 SUBDIRS                                += \
-    paho                                  \
     $(NULL)
 endif
 
