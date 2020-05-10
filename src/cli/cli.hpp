@@ -284,7 +284,7 @@ private:
     void ProcessMasterKey(uint8_t aArgsLength, char *aArgs[]);
     void ProcessMode(uint8_t aArgsLength, char *aArgs[]);
 #if OPENTHREAD_CONFIG_MQTTSN_ENABLE
-    void ProcessMqtt(int argc, char *argv[]);
+    void ProcessMqtt(uint8_t aArgsLength, char *aArgs[]);
 #endif
 #if OPENTHREAD_FTD
     void ProcessNeighbor(uint8_t aArgsLength, char *aArgs[]);

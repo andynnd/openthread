@@ -61,31 +61,31 @@ public:
      * @param[in]  argv  A pointer to an array of command line arguments.
      *
      */
-    otError Process(int argc, char *argv[]);
+    otError Process(uint8_t aArgsLength, char *aArgs[]);
 
 private:
     struct Command
     {
         const char *mName;
-        otError (Mqtt::*mCommand)(int argc, char *argv[]);
+        otError (Mqtt::*mCommand)(uint8_t aArgsLength, char *aArgs[]);
     };
 
-    otError ProcessHelp(int argc, char *argv[]);
-    otError ProcessStart(int argc, char *argv[]);
-    otError ProcessStop(int argc, char *argv[]);
-    otError ProcessConnect(int argc, char *argv[]);
-    otError ProcessReconnect(int argc, char *argv[]);
-    otError ProcessSubscribe(int argc, char *argv[]);
-    otError ProcessState(int argc, char *argv[]);
-    otError ProcessRegister(int argc, char *argv[]);
-    otError ProcessPublish(int argc, char *argv[]);
-    otError ProcessPublishm1(int argc, char *argv[]);
-    otError ProcessUnsubscribe(int argc, char *argv[]);
-    otError ProcessDisconnect(int argc, char *argv[]);
-    otError ProcessSleep(int argc, char *argv[]);
-    otError ProcessAwake(int argc, char *argv[]);
-    otError ProcessSearchgw(int argc, char *argv[]);
-    otError ProcessGateways(int argc, char *argv[]);
+    otError ProcessHelp(uint8_t aArgsLength, char *aArgs[]);
+    otError ProcessStart(uint8_t aArgsLength, char *aArgs[]);
+    otError ProcessStop(uint8_t aArgsLength, char *aArgs[]);
+    otError ProcessConnect(uint8_t aArgsLength, char *aArgs[]);
+    otError ProcessReconnect(uint8_t aArgsLength, char *aArgs[]);
+    otError ProcessSubscribe(uint8_t aArgsLength, char *aArgs[]);
+    otError ProcessState(uint8_t aArgsLength, char *aArgs[]);
+    otError ProcessRegister(uint8_t aArgsLength, char *aArgs[]);
+    otError ProcessPublish(uint8_t aArgsLength, char *aArgs[]);
+    otError ProcessPublishm1(uint8_t aArgsLength, char *aArgs[]);
+    otError ProcessUnsubscribe(uint8_t aArgsLength, char *aArgs[]);
+    otError ProcessDisconnect(uint8_t aArgsLength, char *aArgs[]);
+    otError ProcessSleep(uint8_t aArgsLength, char *aArgs[]);
+    otError ProcessAwake(uint8_t aArgsLength, char *aArgs[]);
+    otError ProcessSearchgw(uint8_t aArgsLength, char *aArgs[]);
+    otError ProcessGateways(uint8_t aArgsLength, char *aArgs[]);
 
     otError ParseTopic(char *aValue, otMqttsnTopic *aTopic);
 

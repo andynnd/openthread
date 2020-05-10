@@ -1654,7 +1654,7 @@ otError MqttsnClient::PingGateway(uint32_t aRetransmissionTimeout, uint8_t aRetr
     }
 
     // There is already pingreq message waiting
-    VerifyOrExit(mPingreqQueue.IsEmpty());
+    VerifyOrExit(mPingreqQueue.IsEmpty(), OT_NOOP);
 
     // Serialize and send PINGREQ message
     SuccessOrExit(error = pingreqMessage.Serialize(buffer, MAX_PACKET_SIZE, &length));

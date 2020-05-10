@@ -1911,10 +1911,10 @@ exit:
 }
 
 #if OPENTHREAD_CONFIG_MQTTSN_ENABLE
-void Interpreter::ProcessMqtt(int argc, char *argv[])
+void Interpreter::ProcessMqtt(uint8_t aArgsLength, char *aArgs[])
 {
 	otError error;
-	error = mMqtt.Process(argc, argv);
+	error = mMqtt.Process(aArgsLength, aArgs);
 	AppendResult(error);
 }
 #endif

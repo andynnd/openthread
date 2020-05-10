@@ -340,11 +340,11 @@ exit:
 
 otError PubackMessage::Serialize(uint8_t* aBuffer, uint8_t aBufferLength, int32_t* aLength) const
 {
-    unsigned short topicId;
+    unsigned short topicId = 0;
     switch (mTopic.GetType())
     {
     case kShortTopicName:
-        topicId = *reinterpret_cast<const unsigned short *>(mTopic.GetTopicName());
+        topicId = ((unsigned short) mTopic.GetTopicName()[0] << 8) | (unsigned short) mTopic.GetTopicName()[1];
         break;
     case kTopicId:
     case kPredefinedTopicId:
