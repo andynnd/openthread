@@ -126,11 +126,9 @@ libopenthread_efr32mg21_a_LIBADD                                                
     $(shell find $(top_builddir)/third_party/jlink/SEGGER_RTT_V640/RTT $(Dash)type f $(Dash)name "*.o")
 
 DIST_SUBDIRS                                                                  = \
-    sleepy-demo                                                                 \
     $(NULL)
 
 SUBDIRS                                                                       = \
-    sleepy-demo                                                                 \
     $(NULL)
 
 include $(abs_top_nlbuild_autotools_dir)/automake/post.am
